@@ -14,7 +14,9 @@
     "test",
     "tests"
   ],
-  "devDependencies": {
-    "angular": "^1.5.6"
+  "devDependencies": {},
+  "dependencies": {
+    "angular": "^1.5.6",
+    "angular-route": "^1.5.6"
   }
 }
