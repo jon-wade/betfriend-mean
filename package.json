@@ -1,0 +1,25 @@
+{
+  "name": "betfriend-mean",
+  "version": "1.0.0",
+  "description": "Refactor Betfriend app using MEAN",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jon-wade/betfriend-mean.git"
+  },
+  "author": "Jon Wade",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jon-wade/betfriend-mean/issues"
+  },
+  "homepage": "https://github.com/jon-wade/betfriend-mean#readme",
+  "dependencies": {
+    "express": "^4.13.4"
+  },
+  "devDependencies": {
+    "nodemon": "^1.9.2"
+  }
+}

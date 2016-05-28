@@ -1,0 +1,20 @@
+{
+  "name": "betfriend-mean",
+  "description": "Refactor Betfriend app using MEAN",
+  "main": "server.js",
+  "authors": [
+    "Jon Wade"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/jon-wade/betfriend-mean",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "angular": "^1.5.6"
+  }
+}
