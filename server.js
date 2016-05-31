@@ -1,52 +1,33 @@
-//import express application server
 var express = require('express');
+var scraper = require('./betfair/scraper.js');
+var db = require('./db/database.js');
+var populate = require('./ergast/populateDb.js');
 
-//use mongoose to connect to MongoDB and allows the creation of a model/schema
-//need to start up the database before running this code ($ mongod --dbpath=<path to storage folder> --port=<port number to listen on, normally 27017>
-var mongoose = require('mongoose');
-
-//import getUrl method
-var scraper = require('./scraper/scraper.js');
-
-//create an instance of express
-var app = express();
-
-//connect to mongoDB via mongoose
-mongoose.connect('mongodb://localhost/betfriend');
-
-scraper.scrapeBetfair().then(function(response){
-    console.log(response);
+scraper.go().then(function() {
+    populate.go();
 });
 
-//set-up schema for database
-var Schema = mongoose.Schema(
-    {
-        'name': String,
-        'age': Number
-    }
-);
 
-//create a mongoose model
-var Data = mongoose.model('data', Schema);
-
-//create some test data
-//Data.create({'name': 'Jon', 'age': 44}, function(err, res){
-//    if (err) {
-//        console.log('Data error', err);
-//        mongoose.disconnect();
-//    }
-//    else {
-//        console.log('Data added', res);
-//        mongoose.disconnect();
-//    }
-//});
+//web server
+var testData = {
+    'test': 'hello world'
+};
 
 
+//web server
+var app = express();
 app.use(express.static(__dirname + '/public'));
 
-app.get('*', function(req, res) {
-        res.sendFile('/public/index.html')
-    });
+app.get('/', function(req, res) {
+    res.sendFile('/public/index.html');
+});
+
+app.get('/data', function(req, res){
+    res.send(testData);
+});
 
 app.listen(8080);
 console.log("App is listening on port 8080");
+
+
+

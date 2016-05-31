@@ -9,9 +9,18 @@ client.config(function($routeProvider, $locationProvider) {
     $locationProvider.html5Mode(true);
 });
 
-client.controller('homeCtrl', [function(){
+client.controller('homeCtrl', ['$http', function($http){
     //controller function here
-
+    $http({
+        'url': '/data',
+        'method': 'GET'
+    }).then(function(success){
+        //on success
+        console.log(success);
+    }, function(error){
+        //on error
+        console.log(error);
+    });
 }]);
 
 
