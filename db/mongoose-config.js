@@ -7,7 +7,9 @@ var driverSchema = mongoose.Schema(
         'odds': Number,
         'familyName': String,
         'givenName': String,
-        'nationality': String
+        'nationality': String,
+        'driverId': String,
+        'circuitHistory': Array
     }
 );
 exports.Data = mongoose.model('data', driverSchema);
@@ -18,8 +20,8 @@ var raceSchema = mongoose.Schema(
         'raceName': String,
         'circuitId': String,
         'circuitName': String,
-        'date': String,
-        'time': String
+        'raceDate': Date
     }
 );
 exports.Race = mongoose.model('race', raceSchema);
+

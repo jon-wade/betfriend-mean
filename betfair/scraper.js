@@ -23,8 +23,9 @@ exports.go = function() {
     return new Promise(function (resolve, reject) {
         scrapeBetfair().then(function (res) {
             //clear database
-            db.controller.delete({}, 'Data');
-            console.log('Response:', res);
+            db.controller.delete({}, mongooseConfig.Data);
+            db.controller.delete({}, mongooseConfig.Race);
+            //console.log('Response:', res);
             //populate database with betfair data
             for (i=0; i<res.drivers.length; i++) {
                 db.controller.create({'betfairName': res.drivers[i], 'odds': res.odds[i]}, mongooseConfig.Data);

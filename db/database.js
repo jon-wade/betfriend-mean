@@ -12,7 +12,7 @@ var controller = {
                 }
                 else {
                     //data removed
-                    console.log('Data deleted: ', data);
+                    //console.log('Data deleted: ', data);
                     resolve(data);
                 }
             })
@@ -26,7 +26,7 @@ var controller = {
                     reject(err);
                 }
                 else {
-                    console.log('Data saved: ', data);
+                    //console.log('Data saved: ', data);
                     resolve(data);
                 }
             });
@@ -40,21 +40,21 @@ var controller = {
                     reject(err);
                 }
                 else {
-                    console.log('Updating: ', item, ' and found: ', data);
+                    //console.log('Updating: ', item, ' and found: ', data);
                     resolve(true);
                 }
             });
         });
     },
-    'find': function(item, schema) {
+    'read': function(item, field, schema) {
         return new Promise(function(resolve, reject) {
-            schema.find(item, function (err, data) {
+            schema.find(item, field, function (err, data) {
                 if (err) {
-                    console.log('Error finding data: ', err);
+                    console.log('Error reading data: ', err);
                     reject(err);
                 }
                 else {
-                    console.log('Finding: ', item, ' and found ', data);
+                    //console.log('Finding: ', item, ' and found ', data);
                     resolve(data);
                 }
             });
