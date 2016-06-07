@@ -9,7 +9,9 @@ var driverSchema = mongoose.Schema(
         'givenName': String,
         'nationality': String,
         'driverId': String,
-        'circuitHistory': Array
+        'circuitHistory': Array,
+        'manufacturerId': String,
+        'manufacturerName': String
     }
 );
 exports.Data = mongoose.model('data', driverSchema);

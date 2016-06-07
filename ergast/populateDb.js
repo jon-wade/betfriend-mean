@@ -152,15 +152,15 @@ var getNextRace = function(){
     });
 };
 
-var getDriverId = function(){
+var getDbData = function(field){
     return new Promise(function(resolve, reject){
-        db.controller.read({}, '_id driverId', mongooseConfig.Data)
+        db.controller.read({}, '_id ' + field, mongooseConfig.Data)
             .then(function(data) {
                 if(data){
                     resolve(data);
                 }
                 else {
-                    reject("Error retrieving data in getDriverId!");
+                    reject("Error retrieving data in getDbData!");
                 }
             });
     });
@@ -172,7 +172,7 @@ var getDriverCircuitHistory = function(circuitId, driverId) {
         ergast.getData('http://ergast.com/api/f1/circuits/' + circuitId + '/drivers/' + driverId + '/results.json').then(function(res, rej){
             if(rej){
                 console.log('getDriverCircuitHistory cannot populate database due to error in callApi.js: ', rej);
-                reject();
+                reject(rej);
             }
             else {
                 var data = res.body.MRData.RaceTable;
@@ -184,13 +184,39 @@ var getDriverCircuitHistory = function(circuitId, driverId) {
     });
 };
 
+var getDriverManufacturer = function() {
+    return new Promise(function(resolve, reject){
+       console.log('Fetching driver current manufacturer from API...');
+        ergast.getData('http://ergast.com/api/f1/current/last/results.json').then(function(res, rej){
+            if(rej){
+                console.log('getDriverManufacture cannot populate database due to error in callApi.js: ', rej);
+                reject(rej);
+            }
+            else {
+                //console.log('getDriverManufacture response=', res.body.MRData.RaceTable.Races[0].Results);
+                var data = res.body.MRData.RaceTable.Races[0].Results;
+                data.forEach(function(item){
+                    var driverId = item.Driver.driverId;
+                    var constructorId = item.Constructor.constructorId;
+                    var constructorName = item.Constructor.name;
+                    //update db with manufacturer data
+                    db.controller.update({'driverId': driverId}, {'manufacturerId': constructorId}, mongooseConfig.Data);
+                    db.controller.update({'driverId': driverId}, {'manufacturerName': constructorName}, mongooseConfig.Data);
+                    resolve();
+                });
+
+            }
+        });
+    });
+}
+
 //populate db
 exports.go = function() {
 
     var stepOne = function(){
         return new Promise(function(resolve, reject) {
-            var driverArray;
-            var circuitId;
+            var driverArray, circuitId;
+            var manufacturerArray=[];
 
             getRaceCalendar().then(function() {
                 getNextRace().then(function(res) {
@@ -200,18 +226,37 @@ exports.go = function() {
             });
 
             getDriverData().then(function() {
-                getDriverId().then(function(res) {
+                getDbData('driverId').then(function(res) {
                     driverArray=res;
-                    checkComplete();
+                    getDriverManufacturer().then(function(){
+                        getDbData('manufacturerId').then(function(res) {
+                            //remove duplicates
+                            manufacturerArray.push(res[0].manufacturerId);
+                            for (var i=1; i<res.length; i++) {
+                                //check if the manufacturer already exists in the array
+                                //TODO: Got to here...
+                                if(res[i] === res[i-1]){
+                                    //don't push to array
+                                }
+                                else {
+                                    //push to array
+                                }
+                            }
+                            checkComplete();
+                        });
+                    });
+
+
                 })
             });
 
             var checkComplete = function(){
-                if (driverArray != undefined && circuitId != undefined){
+                if (driverArray != undefined && circuitId != undefined && manufacturerArray != undefined){
                     resolve (
                         {
                             'driverArray': driverArray,
-                            'circuitId': circuitId
+                            'circuitId': circuitId,
+                            'manufacturerArray': manufacturerArray
                         }
                     );
                 }
@@ -220,15 +265,15 @@ exports.go = function() {
     };
 
     stepOne().then(function(res){
-
-        console.log('res.circuitId = ', res.circuitId);
-        console.log('item.driverId[0] = ', res.driverArray[0].driverId);
+        console.log('res.manufacturerArray', res.manufacturerArray);
 
         res.driverArray.forEach(function(item){
             getDriverCircuitHistory(res.circuitId, item.driverId).then(function(res){
                 console.log('Saved circuit history data for...', item.driverId);
             });
+
         });
+
     });
 
 };
