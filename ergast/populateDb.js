@@ -208,7 +208,33 @@ var getDriverManufacturer = function() {
             }
         });
     });
-}
+};
+
+var deDupe = function(res) {
+    var counter = 0;
+    var newArray = [];
+    res.forEach(function(item) {
+        if (counter === 0) {
+            newArray.push(item.manufacturerId);
+            counter ++;
+        }
+        else {
+            var duplicate = false;
+            newArray.forEach(function(check) {
+                if (item.manufacturerId === check){
+                    //is already stored in the array
+                    duplicate = true;
+                }
+            });
+        }
+        if (duplicate === false) {
+            newArray.push(item.manufacturerId);
+            counter ++;
+        }
+    });
+    console.log('newArray = ', newArray);
+    return newArray;
+};
 
 //populate db
 exports.go = function() {
@@ -231,22 +257,11 @@ exports.go = function() {
                     getDriverManufacturer().then(function(){
                         getDbData('manufacturerId').then(function(res) {
                             //remove duplicates
-                            manufacturerArray.push(res[0].manufacturerId);
-                            for (var i=1; i<res.length; i++) {
-                                //check if the manufacturer already exists in the array
-                                //TODO: Got to here...
-                                if(res[i] === res[i-1]){
-                                    //don't push to array
-                                }
-                                else {
-                                    //push to array
-                                }
-                            }
+                            //push the first item into the array as there will be no duplicate
+                            manufacturerArray = deDupe(res);
                             checkComplete();
                         });
                     });
-
-
                 })
             });
 
