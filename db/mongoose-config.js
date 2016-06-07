@@ -11,7 +11,8 @@ var driverSchema = mongoose.Schema(
         'driverId': String,
         'circuitHistory': Array,
         'manufacturerId': String,
-        'manufacturerName': String
+        'manufacturerName': String,
+        'seasonPoints': Number
     }
 );
 exports.Data = mongoose.model('data', driverSchema);
@@ -26,4 +27,14 @@ var raceSchema = mongoose.Schema(
     }
 );
 exports.Race = mongoose.model('race', raceSchema);
+
+var manufacturerSchema = mongoose.Schema(
+    {
+        'manufacturerId': String,
+        'circuitHistory': Array,
+        'seasonPoints': Number
+    }
+);
+
+exports.Manufacturer = mongoose.model('manufacturer', manufacturerSchema);
 
