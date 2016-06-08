@@ -12,11 +12,15 @@ client.config(function($routeProvider, $locationProvider) {
 client.controller('homeCtrl', ['$http', function($http){
     //controller function here
     $http({
-        'url': '/data',
+        'url': '/homeData',
         'method': 'GET'
     }).then(function(success){
         //on success
         console.log(success);
+
+
+
+
     }, function(error){
         //on error
         console.log(error);

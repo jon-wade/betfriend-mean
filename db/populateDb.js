@@ -1,6 +1,7 @@
-var ergast = require('./callApi.js');
-var db = require('../db/database.js');
-var mongooseConfig = require('../db/mongoose-config.js');
+var ergast = require('./../ergast/callApi.js');
+var db = require('./database.js');
+var mongooseConfig = require('./mongoose-config.js');
+var utility = require('./utility.js');
 
 
 //utility functions
@@ -214,31 +215,6 @@ var getManufacturerSeasonPoints = function () {
 };
 
 //functions that read from the database
-var getNextRace = function(){
-    return new Promise(function(resolve, reject){
-        var dateNow = new Date();
-        db.controller.read({}, 'raceDate _id round raceName circuitId circuitName', mongooseConfig.Race)
-            .then(function(data) {
-                for (var i=0; i<data.length; i++) {
-                    var diff = data[i].raceDate - dateNow;
-                    //console.log(diff);
-                    if (diff>0){
-                        resolve(
-                            {
-                                '_id' : data[i]._id,
-                                'round': data[i].round,
-                                'raceName': data[i].raceName,
-                                'circuitId': data[i].circuitId,
-                                'raceDate': data[i].raceDate
-                            }
-                        );
-                        break;
-                    }
-                }
-                reject("No more races this season, sorry!!");
-            });
-    });
-};
 var getDbData = function(field){
     return new Promise(function(resolve, reject){
         db.controller.read({}, '_id ' + field, mongooseConfig.Data)
@@ -302,69 +278,104 @@ var saveData = function(item) {
 //populate db
 exports.go = function() {
 
-    var stepOne = function(){
-        return new Promise(function(resolve, reject) {
-            var driverArray, circuitId;
-            var manufacturerArray=[];
+    return new Promise(function(resolve, reject){
 
-            getRaceCalendar().then(function() {
-                getNextRace().then(function(res) {
-                    circuitId=res.circuitId;
-                    checkComplete();
-                })
-            });
+        //data requests that have no dependencies and can be run in parallel
+        var stepOne = function(){
+            return new Promise(function(resolve, reject) {
+                var driverArray, circuitId;
+                var manufacturerArray=[];
 
-            getDriverData().then(function() {
-                //get driver season points in parallel here
-                getDriverSeasonPoints().then(function(res){
-                    //who knows what should go here
+                getRaceCalendar().then(function() {
+                    utility.getNextRace().then(function(res) {
+                        circuitId=res.circuitId;
+                        checkComplete();
+                    })
                 });
-                getDbData('driverId').then(function(res) {
-                    driverArray=res;
-                    getDriverManufacturer().then(function(){
-                        getDbData('manufacturerId').then(function(res) {
-                            deDupe(res).then(function(res){
-                                manufacturerArray = res;
-                                getManufacturerSeasonPoints().then(function(){
-                                    checkComplete();
+
+                getDriverData().then(function() {
+                    //get driver season points in parallel here
+                    getDriverSeasonPoints().then(function(res){
+                        //who knows what should go here
+                    });
+                    getDbData('driverId').then(function(res) {
+                        driverArray=res;
+                        getDriverManufacturer().then(function(){
+                            getDbData('manufacturerId').then(function(res) {
+                                deDupe(res).then(function(res){
+                                    manufacturerArray = res;
+                                    getManufacturerSeasonPoints().then(function(){
+                                        checkComplete();
+                                    });
                                 });
                             });
                         });
-                    });
-                })
-            });
+                    })
+                });
 
-            var checkComplete = function(){
-                if (driverArray != undefined && circuitId != undefined && manufacturerArray != undefined){
-                    resolve (
-                        {
-                            'driverArray': driverArray,
-                            'circuitId': circuitId,
-                            'manufacturerArray': manufacturerArray
+                var checkComplete = function(){
+                    if (driverArray != undefined && circuitId != undefined && manufacturerArray != undefined){
+                        resolve (
+                            {
+                                'driverArray': driverArray,
+                                'circuitId': circuitId,
+                                'manufacturerArray': manufacturerArray
+                            }
+                        );
+                    }
+                };
+            });
+        };
+
+        //the remaining data requests which require stepOne to be complete before executing
+        var stepTwo = function(res){
+
+            return new Promise(function(resolve, reject){
+
+                var driverComplete = false;
+                var manufacturerComplete = false;
+                var driverArrayLength = res.driverArray.length;
+                var manufacturerArrayLength = res.manufacturerArray.length;
+                var counterDriver = 1;
+                var counterManufacturer = 1;
+
+                res.driverArray.forEach(function(item){
+                    getDriverCircuitHistory(res.circuitId, item.driverId).then(function(res){
+                        console.log('Saved circuit history data for...', item.driverId);
+                        counterDriver ++;
+                        if (counterDriver === driverArrayLength){
+                            driverComplete = true;
+                            checkComplete();
                         }
-                    );
-                }
-            };
-        });
-    };
+                    });
+                });
 
-    stepOne().then(function(res){
+                res.manufacturerArray.forEach(function(item){
+                    getManufacturerCircuitHistory(res.circuitId, item).then(function(res){
+                        console.log('Saved circuit history data for...', item);
+                        counterManufacturer ++;
+                        if (counterManufacturer === manufacturerArrayLength) {
+                            manufacturerComplete = true;
+                            checkComplete();
+                        }
+                    });
+                });
 
+                var checkComplete = function(){
+                    if (driverComplete === true && manufacturerComplete === true) {
+                        resolve();
+                    }
+                };
+            });
+        };
 
-        res.driverArray.forEach(function(item){
-            getDriverCircuitHistory(res.circuitId, item.driverId).then(function(res){
-                console.log('Saved circuit history data for...', item.driverId);
+        stepOne().then(function(res){
+            stepTwo(res).then(function(res){
+                console.log("database population complete");
+                resolve();
             });
         });
-
-        res.manufacturerArray.forEach(function(item){
-            getManufacturerCircuitHistory(res.circuitId, item).then(function(res){
-                console.log('Saved circuit history data for...', item);
-            });
-        });
-
     });
-
 };
 
 
