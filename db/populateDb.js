@@ -4,7 +4,7 @@ var mongooseConfig = require('./mongoose-config.js');
 var utility = require('./utility.js');
 
 
-//utility functions
+//functions that help to clean up data before sending to the database
 var deDupe = function(res) {
     return new Promise(function(resolve, reject){
         var counter = 0;
@@ -49,6 +49,29 @@ var cleanData = function(data){
     };
     data.forEach(clean);
     return data;
+};
+
+//utility functions
+var pointsLookup = function(position){
+    if (position > 10) {
+        return 0;
+    }
+    else {
+        var table =
+        {
+            '1': 25,
+            '2': 18,
+            '3': 15,
+            '4': 12,
+            '5': 10,
+            '6': 8,
+            '7': 6,
+            '8': 4,
+            '9': 2,
+            '10': 1
+        };
+        return table[position];
+    }
 };
 
 //functions that collect and save data from the API
@@ -160,17 +183,10 @@ var getManufacturerCircuitHistory = function (circuitId, manufacturerId){
             }
             else {
                 var circuitHistory = res.body.MRData.RaceTable.Races;
-                db.controller.create(
-                    {
-                        'manufacturerId': manufacturerId,
-                        'circuitHistory': circuitHistory
-                    }
-                    , mongooseConfig.Manufacturer);
-
+                db.controller.create({'manufacturerId': manufacturerId, 'circuitHistory': circuitHistory}, mongooseConfig.Manufacturer);
                 resolve(res);
             }
         });
-
     });
 };
 var getDriverSeasonPoints = function () {
@@ -211,21 +227,6 @@ var getManufacturerSeasonPoints = function () {
                 resolve();
             }
         });
-    });
-};
-
-//functions that read from the database
-var getDbData = function(field){
-    return new Promise(function(resolve, reject){
-        db.controller.read({}, '_id ' + field, mongooseConfig.Data)
-            .then(function(data) {
-                if(data){
-                    resolve(data);
-                }
-                else {
-                    reject("Error retrieving data in getDbData!");
-                }
-            });
     });
 };
 
@@ -274,6 +275,69 @@ var saveData = function(item) {
         };
     });
 };
+var updateDriverScore = function(driverId, position, factor){
+
+    var newScore = (pointsLookup(position) * factor);
+
+    db.controller.update({'driverId': driverId}, {$inc: {'circuitHistoryScore': newScore}}, mongooseConfig.Data);
+
+};
+var populateDriverCircuitHistoryScore = function() {
+
+    db.controller.read({}, 'driverId circuitHistory', mongooseConfig.Data).then(function(res){
+        var driverArray = res;
+        var currentYear = new Date().getFullYear();
+
+        driverArray.forEach(function(item){
+            db.controller.update({'driverId': item.driverId}, {'circuitHistoryScore': 0}, mongooseConfig.Data)
+                .then(function(){
+                    var driverId = item.driverId;
+                    console.log('driverId:', driverId);
+                    item.circuitHistory.forEach(function(record){
+                        var season = record.season;
+                        console.log('Season:', season);
+                        var position = parseInt(record.Results[0].position);
+                        console.log('Position:', position);
+
+                        if (parseInt(season) > currentYear - 10) {
+                            switch(parseInt(season)){
+                                case currentYear - 1:
+                                    updateDriverScore(driverId, position, 0.25);
+                                    break;
+                                case currentYear - 2:
+                                    updateDriverScore(driverId, position, 0.18);
+                                    break;
+                                case currentYear - 3:
+                                    updateDriverScore(driverId, position, 0.14);
+                                    break;
+                                case currentYear - 4:
+                                    updateDriverScore(driverId, position, 0.12);
+                                    break;
+                                case currentYear - 5:
+                                    updateDriverScore(driverId, position, 0.10);
+                                    break;
+                                case currentYear - 6:
+                                    updateDriverScore(driverId, position, 0.08);
+                                    break;
+                                case currentYear - 7:
+                                    updateDriverScore(driverId, position, 0.06);
+                                    break;
+                                case currentYear - 8:
+                                    updateDriverScore(driverId, position, 0.04);
+                                    break;
+                                case currentYear - 9:
+                                    updateDriverScore(driverId, position, 0.02);
+                                    break;
+                                case currentYear - 10:
+                                    updateDriverScore(driverId, position, 0.01);
+                                    break;
+                            }
+                        }
+                    });
+                });
+        });
+    });
+};
 
 //populate db
 exports.go = function() {
@@ -298,15 +362,13 @@ exports.go = function() {
                     getDriverSeasonPoints().then(function(res){
                         //who knows what should go here
                     });
-                    getDbData('driverId').then(function(res) {
+                    utility.getDbData('driverId', mongooseConfig.Data).then(function(res) {
                         driverArray=res;
                         getDriverManufacturer().then(function(){
-                            getDbData('manufacturerId').then(function(res) {
+                            utility.getDbData('manufacturerId', mongooseConfig.Data).then(function(res) {
                                 deDupe(res).then(function(res){
                                     manufacturerArray = res;
-                                    getManufacturerSeasonPoints().then(function(){
-                                        checkComplete();
-                                    });
+                                    checkComplete();
                                 });
                             });
                         });
@@ -356,7 +418,9 @@ exports.go = function() {
                         counterManufacturer ++;
                         if (counterManufacturer === manufacturerArrayLength) {
                             manufacturerComplete = true;
-                            checkComplete();
+                            getManufacturerSeasonPoints().then(function(){
+                                checkComplete();
+                            });
                         }
                     });
                 });
@@ -369,10 +433,17 @@ exports.go = function() {
             });
         };
 
+        //add in the circuitHistory score to both the driver and manufacturer database collection
+        var stepThree = function(){
+            populateDriverCircuitHistoryScore();
+
+        };
+
         stepOne().then(function(res){
             stepTwo(res).then(function(res){
                 console.log("database population complete");
-                resolve();
+                stepThree();
+                resolve(res);
             });
         });
     });

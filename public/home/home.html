@@ -1,1 +1,23 @@
-<div>This is being served from home/home.html</div>
+<div class="container">
+    <div id="title-block">
+        <!--<link rel="stylesheet" ng-href="{{css}}">-->
+        <h1>{{raceName}}</h1>
+        <p>Round: {{round}}</p>
+        <p>{{circuitName}}</p>
+        <table id="countdown" bordercollapse>
+            <tr id="header">
+                <td class="black">D</td>
+                <td>H</td>
+                <td class="black">M</td>
+                <td>S</td>
+            </tr>
+            <tr>
+                <td>{{days}}</td>
+                <td class="black">{{hours}}</td>
+                <td>{{minutes}}</td>
+                <td class="black">{{seconds}}</td>
+            </tr>
+        </table>
+    <!--</div>-->
+    <button type="button" ng-click="getPredictionPage()">Get Prediction</button>
+</div>

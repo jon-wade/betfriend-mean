@@ -16,6 +16,7 @@ exports.getNextRace = function(){
                                 'round': data[i].round,
                                 'raceName': data[i].raceName,
                                 'circuitId': data[i].circuitId,
+                                'circuitName': data[i].circuitName,
                                 'raceDate': data[i].raceDate
                             }
                         );
@@ -23,6 +24,38 @@ exports.getNextRace = function(){
                     }
                 }
                 reject("No more races this season, sorry!!");
+            });
+    });
+};
+
+exports.getDriverObject = function(){
+    return new Promise(function(resolve, reject){
+        db.controller.read({}, 'familyName _id givenName odds driverId manufacturerId manufacturerName seasonPoints circuitHistory', mongooseConfig.Data)
+            .then(function(data) {
+                resolve(data);
+            });
+    });
+};
+
+exports.getManufacturerObject = function(){
+    return new Promise(function(resolve, reject){
+        db.controller.read({}, 'manufacturerId circuitHistory seasonPoints _id', mongooseConfig.Manufacturer)
+            .then(function(data){
+                resolve(data);
+        });
+    });
+};
+
+exports.getDbData = function(field, modelName){
+    return new Promise(function(resolve, reject){
+        db.controller.read({}, '_id ' + field, modelName)
+            .then(function(data) {
+                if(data){
+                    resolve(data);
+                }
+                else {
+                    reject("Error retrieving data in getDbData!");
+                }
             });
     });
 };

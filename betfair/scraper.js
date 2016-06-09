@@ -25,6 +25,7 @@ exports.go = function() {
             //clear database
             db.controller.delete({}, mongooseConfig.Data);
             db.controller.delete({}, mongooseConfig.Race);
+            db.controller.delete({}, mongooseConfig.Manufacturer);
             //console.log('Response:', res);
             //populate database with betfair data
             for (i=0; i<res.drivers.length; i++) {

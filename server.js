@@ -4,12 +4,18 @@ var db = require('./db/database.js');
 var populate = require('./db/populateDb.js');
 var utility = require('./db/utility.js');
 
-var homeData;
+var raceData, driverData, manufacturerData;
 
 scraper.go().then(function() {
     populate.go().then(function(){
         utility.getNextRace().then(function(res, rej){
-            homeData = res;
+            raceData = res;
+        });
+        utility.getDriverObject().then(function(res, rej){
+            driverData = res;
+        });
+        utility.getManufacturerObject().then(function(res, rej){
+            manufacturerData = res;
         });
     });
 });
@@ -23,9 +29,19 @@ app.get('/', function(req, res) {
     res.sendFile('/public/index.html');
 });
 
-app.get('/homeData', function(req, res){
-    res.send(homeData);
+app.get('/raceData', function(req, res){
+    res.send(raceData);
 });
+
+app.get('/driverData', function(req, res){
+    res.send(driverData);
+});
+
+app.get('/manufacturerData', function(req, res){
+    res.send(manufacturerData);
+});
+
+
 
 app.listen(8080);
 console.log("App is listening on port 8080");

@@ -1,5 +1,3 @@
-//need to start up the database before running this code ($ mongod --dbpath=<path to storage folder> --port=<port number to listen on, normally 27017>
-
 //build db object and associated methods
 var controller = {
     'delete': function(data, schema){
@@ -59,7 +57,7 @@ var controller = {
                 }
             });
         });
-    }
+    },
 };
 
 exports.controller = controller;

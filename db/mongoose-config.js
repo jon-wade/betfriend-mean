@@ -12,7 +12,8 @@ var driverSchema = mongoose.Schema(
         'circuitHistory': Array,
         'manufacturerId': String,
         'manufacturerName': String,
-        'seasonPoints': Number
+        'seasonPoints': Number,
+        'circuitHistoryScore': Number
     }
 );
 exports.Data = mongoose.model('data', driverSchema);
