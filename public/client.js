@@ -32,29 +32,37 @@ client.controller('homeCtrl', ['$http', '$scope', '$interval', '$location', func
     }).then(function(success){
         //on success
         console.log(success);
-        $scope.raceName = success.data.raceName;
-        $scope.round = success.data.round;
-        $scope.circuitName = success.data.circuitName;
 
-        var dateNow = new Date();
-        var raceDate = new Date(success.data.raceDate);
-        var diff = raceDate - dateNow;
+        if (success.data.status) {
+            $scope.errorStatus = false;
+            $scope.raceName = success.data.raceName;
+            $scope.round = success.data.round;
+            $scope.circuitName = success.data.circuitName;
 
-        //homepage countdown timer
-        var timer = function(){
-            var d = diff / (1000*60*60*24);
-            var h = (diff % (1000*60*60*24)) / (1000*60*60);
-            var m = ((diff % (1000*60*60*24)) % (1000*60*60)) / (1000*60);
-            var s = (((diff % (1000*60*60*24)) % (1000*60*60)) % (1000*60)) / 1000;
+            var dateNow = new Date();
+            var raceDate = new Date(success.data.raceDate);
+            var diff = raceDate - dateNow;
 
-            $scope.days = Math.floor(d);
-            $scope.hours = Math.floor(h);
-            $scope.minutes = Math.floor(m);
-            $scope.seconds = Math.floor(s);
-        };
+            //homepage countdown timer
+            var timer = function(){
+                var d = diff / (1000*60*60*24);
+                var h = (diff % (1000*60*60*24)) / (1000*60*60);
+                var m = ((diff % (1000*60*60*24)) % (1000*60*60)) / (1000*60);
+                var s = (((diff % (1000*60*60*24)) % (1000*60*60)) % (1000*60)) / 1000;
 
-        timer();
-        $interval(function() {diff -= 1000; timer();}, 1000);
+                $scope.days = Math.floor(d);
+                $scope.hours = Math.floor(h);
+                $scope.minutes = Math.floor(m);
+                $scope.seconds = Math.floor(s);
+            };
+
+            timer();
+            $interval(function() {diff -= 1000; timer();}, 1000);
+        }
+        else {
+            $scope.errorStatus = true;
+            $scope.errorMessage = success.data.content;
+        }
 
 
     }, function(error){

@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/betfriend');
 var driverSchema = mongoose.Schema(
     {
-        'betfairName': {type: String, unique:true},
+        'betfairName': {type: String/*, unique:true*/},
         'odds': Number,
         'familyName': String,
         'givenName': String,
@@ -33,7 +33,8 @@ var manufacturerSchema = mongoose.Schema(
     {
         'manufacturerId': String,
         'circuitHistory': Array,
-        'seasonPoints': Number
+        'seasonPoints': Number,
+        'circuitHistoryScore': Number
     }
 );
 

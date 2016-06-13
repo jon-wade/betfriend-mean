@@ -8,13 +8,23 @@ var scrapeBetfair = function() {
   return new Promise(function(resolve, reject){
       var url = "";
       //TODO: grand prix race name hardcoded
-      getUrl.retrieveURL('Canadian')
+      getUrl.retrieveURL('European')
           .then(function(response){
-              return url=response;
+              //console.log('getUrl.retrieveURL response =', response);
+              return response;
+          }, function(error){
+              //console.log('getUrl.retrieveURL error =', error);
+              return error;
           })
-          .then(function(url){
-              var array = getOdds.retrieveOdds(url);
-              resolve(array);
+          .then(function(data){
+              if (data.status){
+                  getOdds.retrieveOdds(data.content).then(function(data){
+                      resolve(data);
+                  });
+              }
+              else {
+                  reject(data);
+              }
           });
   });
 };
@@ -22,16 +32,11 @@ var scrapeBetfair = function() {
 exports.go = function() {
     return new Promise(function (resolve, reject) {
         scrapeBetfair().then(function (res) {
-            //clear database
-            db.controller.delete({}, mongooseConfig.Data);
-            db.controller.delete({}, mongooseConfig.Race);
-            db.controller.delete({}, mongooseConfig.Manufacturer);
-            //console.log('Response:', res);
-            //populate database with betfair data
-            for (i=0; i<res.drivers.length; i++) {
-                db.controller.create({'betfairName': res.drivers[i], 'odds': res.odds[i]}, mongooseConfig.Data);
-            }
-            resolve();
+            //console.log('scrapeBetfair Response:', res);
+            resolve(res);
+        }, function(rej){
+            //TODO: deal with non-availability of scraped data here
+            reject(rej);
         });
     });
 };

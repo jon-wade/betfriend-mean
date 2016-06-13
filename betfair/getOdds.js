@@ -26,8 +26,14 @@ exports.retrieveOdds = function(url) {
 
                         for (var i = 0; i < drivers.length; i++) {
                             driverArray.push(drivers[i].children[0].data);
-                            oddsArray.push(eval(prices[i].children[0].data.replace(/[\s]+/g, ''))+1);
+                            //console.log(prices[i].children[0].data);
+                            if (prices[i].children[0].data.includes('EVS')){
+                                oddsArray.push(2);
                             }
+                            else {
+                                oddsArray.push(eval(prices[i].children[0].data.replace(/[\s]+/g, ''))+1);
+                            }
+                        }
                     }
                     resolve({
                         drivers: driverArray,

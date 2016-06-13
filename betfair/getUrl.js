@@ -32,7 +32,10 @@ exports.retrieveURL = function(raceName){
                                                     var url = events[i].children[j].attribs.href;
                                                     //console.log(url);
                                                     gpFound=true;
-                                                    resolve(url);
+                                                    resolve({
+                                                        'content': url,
+                                                        'status': true
+                                                    });
                                                 }
                                             }
                                         }
@@ -40,8 +43,10 @@ exports.retrieveURL = function(raceName){
                                 }
                             }
                             if(gpFound==false){
-                                console.log(raceName, 'Grand Prix could not be found on Betfair');
-                                reject();
+                                reject({
+                                    'content': raceName + ' Grand Prix data could not be found on Betfair at this time',
+                                    'status': false
+                                });
                             }
                         }
                     });

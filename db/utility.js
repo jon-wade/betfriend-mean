@@ -17,7 +17,8 @@ exports.getNextRace = function(){
                                 'raceName': data[i].raceName,
                                 'circuitId': data[i].circuitId,
                                 'circuitName': data[i].circuitName,
-                                'raceDate': data[i].raceDate
+                                'raceDate': data[i].raceDate,
+                                'status': true
                             }
                         );
                         break;
@@ -30,7 +31,7 @@ exports.getNextRace = function(){
 
 exports.getDriverObject = function(){
     return new Promise(function(resolve, reject){
-        db.controller.read({}, 'familyName _id givenName odds driverId manufacturerId manufacturerName seasonPoints circuitHistory', mongooseConfig.Data)
+        db.controller.read({}, 'familyName _id givenName odds driverId manufacturerId manufacturerName seasonPoints circuitHistory circuitHistoryScore', mongooseConfig.Data)
             .then(function(data) {
                 resolve(data);
             });
@@ -39,7 +40,7 @@ exports.getDriverObject = function(){
 
 exports.getManufacturerObject = function(){
     return new Promise(function(resolve, reject){
-        db.controller.read({}, 'manufacturerId circuitHistory seasonPoints _id', mongooseConfig.Manufacturer)
+        db.controller.read({}, 'manufacturerId circuitHistory seasonPoints _id circuitHistoryScore', mongooseConfig.Manufacturer)
             .then(function(data){
                 resolve(data);
         });
