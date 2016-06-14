@@ -219,13 +219,18 @@ var getManufacturerSeasonPoints = function () {
             }
             else {
                 //console.log('getManufacturerSeasonPoints:', res.body.MRData.StandingsTable.StandingsLists[0].ConstructorStandings);
+                var counter = 0;
                 var pointsTable = res.body.MRData.StandingsTable.StandingsLists[0].ConstructorStandings;
                 pointsTable.forEach(function(item){
                     var manufacturerId = item.Constructor.constructorId;
                     var seasonPoints = parseInt(item.points);
-                    db.controller.update({'manufacturerId': manufacturerId}, {'seasonPoints': seasonPoints}, mongooseConfig.Manufacturer);
+                    db.controller.update({'manufacturerId': manufacturerId}, {'seasonPoints': seasonPoints}, mongooseConfig.Manufacturer).then(function(){
+                        counter++;
+                    });
                 });
-                resolve();
+                if (counter == 11) {
+                    setTimeout(function(){console.log('waiting 2 seconds...'); resolve();}, 2000);
+                }
             }
         });
     });
@@ -519,7 +524,7 @@ exports.go = function() {
 
                 //TODO: here we add in the code to get the odds using the scraper code
 
-                saveScraperData()
+                saveScraperData();
 
                 var checkComplete = function(){
                     if (driverComplete === true && manufacturerComplete === true) {
@@ -565,7 +570,7 @@ exports.go = function() {
                 stepThree().then(function(res){
                     console.log('StepThree res=', res);
                     console.log("database population complete");
-                    resolve();
+                    setTimeout(function(){resolve();}, 2000);
                 });
             });
         });

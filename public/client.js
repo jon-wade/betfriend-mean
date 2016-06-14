@@ -17,7 +17,7 @@ client.config(function($routeProvider, $locationProvider) {
     $locationProvider.html5Mode(true);
 });
 
-client.controller('homeCtrl', ['$http', '$scope', '$interval', '$location', function($http, $scope, $interval, $location){
+client.controller('homeCtrl', ['$http', '$scope', '$rootScope', '$interval', '$location', function($http, $scope, $rootScope, $interval, $location){
     //controller function here
 
     //methods for clicking through to the next page
@@ -36,7 +36,7 @@ client.controller('homeCtrl', ['$http', '$scope', '$interval', '$location', func
         if (success.data.status) {
             $scope.errorStatus = false;
             $scope.raceName = success.data.raceName;
-            $scope.round = success.data.round;
+            $rootScope.round = success.data.round;
             $scope.circuitName = success.data.circuitName;
 
             var dateNow = new Date();
@@ -71,7 +71,7 @@ client.controller('homeCtrl', ['$http', '$scope', '$interval', '$location', func
     });
 }]);
 
-client.controller('predictionCtrl', ['$http', '$scope', '$location', function($http, $scope, $location){
+client.controller('predictionCtrl', ['$http', '$scope', '$rootScope', '$location', function($http, $scope, $rootScope, $location){
 
     $scope.dc = 50;
     $scope.st = 50;
@@ -80,19 +80,101 @@ client.controller('predictionCtrl', ['$http', '$scope', '$location', function($h
         'url': '/driverData',
         'method': 'GET'
     }).then(function(success){
-        console.log('driverData', success);
+
         //driverData received
-        $scope.driverData = success;
+        $scope.driverData = success.data;
+        console.log('driverData', $scope.driverData);
+
+
+        $http({
+            'url': '/manufacturerData',
+            'method': 'GET'
+        }).then(function(success){
+            console.log('manufacturerData', success);
+            $scope.manufacturerData = success.data;
+
+            var populateScores = function() {
+
+                $scope.total = 0;
+
+                $scope.driverData.forEach(function(driver){
+                    var driverId = driver.driverId;
+                    console.log('driverId:', driverId);
+                    var driverManufacturer = driver.manufacturerId;
+                    console.log('driverManufacturer:', driverManufacturer);
+                    var index = 0;
+                    for (var i=0; i<$scope.manufacturerData.length; i++){
+                        if(driverManufacturer === $scope.manufacturerData[i].manufacturerId){
+                            index = i;
+                            console.log('index:', index);
+                        }
+                    }
+
+                    var driverSeasonPoints = driver.seasonPoints;
+                    console.log('driverSeasonPoints:', driverSeasonPoints);
+                    var manufacturerSeasonPoints = $scope.manufacturerData[index].seasonPoints;
+
+                    var driverCircuitHistoryScore = driver.circuitHistoryScore;
+                    var manufacturerCircuitHistoryScore = $scope.manufacturerData[index].circuitHistoryScore;
+
+
+                    console.log('manufacturerSeasonPoints:', manufacturerSeasonPoints);
+
+                    console.log('$rootScope.round - 1:', $rootScope.round-1);
+                    console.log('$scope.dc:', $scope.dc);
+
+                    var combinedSeasonScore = (100 - $scope.dc) * ((driverSeasonPoints) / ($rootScope.round -1));
+                    combinedSeasonScore += $scope.dc * (manufacturerSeasonPoints / (2 * ($rootScope.round -1)));
+                    combinedSeasonScore /= 100;
+
+                    var combinedCircuitScore = (100 - $scope.dc) * (driverCircuitHistoryScore);
+                    combinedCircuitScore += $scope.dc * (manufacturerCircuitHistoryScore/2);
+                    combinedCircuitScore /= 100;
+
+                    var totalScore = (100 - $scope.st) * combinedSeasonScore;
+                    totalScore += $scope.st * combinedCircuitScore;
+                    totalScore /=100;
+
+
+                    //console.log('combinedSeasonScore:', combinedSeasonScore);
+                    driver.combinedSeasonScore = combinedSeasonScore;
+                    driver.combinedCircuitScore = combinedCircuitScore;
+                    driver.totalScore = totalScore;
+
+                    $scope.total += totalScore;
+
+
+                });
+            };
+
+            populateScores();
+
+            $scope.$watch('dc', function(newValue, oldValue){
+                if (oldValue>newValue){
+                    populateScores();
+                }
+                else if(oldValue<newValue){
+                    populateScores();
+                }
+            });
+            $scope.$watch('st', function(newValue, oldValue){
+                if (oldValue>newValue){
+                    populateScores();
+                }
+                else if(oldValue<newValue){
+                    populateScores();
+                }
+            });
+
+
+        }, function(error){
+
+        });
+
     }, function(error){
         console.log(error);
     });
 
-    $http({
-        'url': '/manufacturerData',
-        'method': 'GET'
-    }).then(function(success){
-        console.log('manufacturerData', success);
-    }, function(error){});
 
 }]);
 
