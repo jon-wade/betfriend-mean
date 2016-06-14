@@ -1,0 +1,352 @@
+html, body {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: black;
+    color: white;
+    font-family: 'Exo 2', Helvetica, sans-serif;
+}
+
+nav ul {
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+    background-color: black;
+    padding: 20px 0;
+    position: fixed;
+    top: 0;
+    width:100%;
+    z-index: 100;
+}
+
+nav ul li {
+    list-style: none;
+    font-size: 0.75em;
+    padding: 0 10px;
+}
+
+nav ul li.hide {
+    color: black;
+}
+
+nav ul li h1 {
+    font-size: 1em;
+    margin: 0;
+    text-align: center;
+    padding: 0 10px;
+}
+
+div#form-container {
+    position: fixed;
+    top: 54px;
+    background-color: black;
+    width: 100%;
+    z-index: 100;
+}
+
+div.container {
+    background-size: cover;
+    background-position: center center;
+    min-height: 100vh;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+div.container p {
+    margin: 0;
+    padding-top: 20px;
+}
+
+div#title-block {
+    position: relative;
+    top: 125px;
+}
+
+div#title-block h1 {
+    margin: 0;
+    font-style: italic;
+}
+
+div.container button {
+    margin-top: 175px;
+    background-color: #00A000;
+    color: white;
+    font-size: 0.5em;
+    width: 100px;
+    height: 50px;
+    border: 1px solid white;
+    border-radius: 5px;
+}
+
+table#countdown {
+    font-size: 0.75em;
+    text-align: center;
+    margin: 30px auto 0 auto;
+    border-collapse: collapse;
+    background-color: white;
+    color: black;
+}
+
+table#countdown td {
+    padding: 5px;
+    border: darkgrey solid 4px;
+    width: 40px;
+}
+
+table#countdown td.black {
+    background-color: black;
+    color: white;
+}
+
+div#predictGrid {
+    background-color: black;
+    margin-top: 190px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+
+div.driverItem {
+    max-height: 200px;
+    margin: 5px 5px;
+    background-size: cover;
+    background-position: 50% 50%;
+}
+
+.williams {
+    background-image: url('img/williams/williams.jpg');
+}
+
+.mclaren {
+    background-image: url('img/mclaren/mclaren.jpg');
+}
+
+.mercedes {
+    background-image: url('img/mercedes/mercedes.jpg');
+}
+
+.ferrari {
+    background-image: url('img/ferrari/ferrari.jpg');
+}
+
+.red_bull {
+    background-image: url('img/red_bull/red_bull.jpg');
+}
+
+.toro_rosso {
+    background-image: url('img/toro_rosso/toro_rosso.jpg');
+}
+
+.haas {
+    background-image: url('img/haas/haas.jpg');
+}
+
+.force_india {
+    background-image: url('img/force_india/force_india.jpg');
+}
+
+.renault {
+    background-image: url('img/renault/renault.jpg');
+}
+
+.sauber {
+    background-image: url('img/sauber/sauber.jpg');
+}
+
+.manor {
+    background-image: url('img/manor/manor.jpg');
+}
+
+form#predictForm {
+    margin: 0 auto 20px auto;
+    width: 200px;
+}
+
+img.driverShot {
+    width: 150px;
+    height: 150px;
+    padding-top: 25px;
+    padding-left: 15px;
+}
+
+ul.driverStats {
+    background-color: rgba(0,0,0,0.75);
+    padding-left: 0;
+    position: relative;
+    top: -135px;
+    margin-left: 180px;
+}
+
+ul.driverStats li {
+    list-style: none;
+    color: white;
+    font-style: italic;
+    font-weight: 900;
+}
+
+/* --- sort out the range slider formating --- */
+
+/* --- firstly hide the default range sliders --- */
+
+input[type=range] {
+    -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+    width: 100%; /* Specific width is required for Firefox. */
+    background: transparent; /* Otherwise white in Chrome */
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+}
+
+input[type=range]:focus {
+    outline: none; /* Removes the blue border. */
+}
+
+input[type=range]::-ms-track {
+    width: 100%;
+    cursor: pointer;
+
+    /* Hides the slider so custom styles can be added */
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+}
+
+/* Special styling for WebKit/Blink */
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: 1px solid black;
+    height: 30px;
+    width: 16px;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    margin-top: -14px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+}
+
+/* All the same stuff for Firefox */
+input[type=range]::-moz-range-thumb {
+    border: 1px solid black;
+    height: 30px;
+    width: 16px;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+}
+
+/* All the same stuff for IE */
+input[type=range]::-ms-thumb {
+    border: 1px solid black;
+    height: 30px;
+    width: 16px;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 8px;
+    cursor: pointer;
+    background: darkgrey;
+}
+
+input[type=range]:focus::-webkit-slider-runnable-track {
+    background: darkgrey;
+}
+
+input[type=range]::-moz-range-track {
+    width: 100%;
+    height: 8px;
+    cursor: pointer;
+    background: darkgrey;
+}
+
+input[type=range]::-ms-track {
+    width: 100%;
+    height: 8px;
+    cursor: pointer;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+}
+input[type=range]::-ms-fill-lower {
+    background: darkgrey;
+}
+
+input[type=range]:focus::-ms-fill-lower {
+    background: darkgrey;
+}
+
+input[type=range]::-ms-fill-upper {
+    background: darkgrey;
+}
+
+input[type=range]:focus::-ms-fill-upper {
+    background: darkgrey;
+}
+
+input#dc, input#st {
+    margin-top: 20px;
+}
+
+div#sliderOneContainer, div#sliderTwoContainer {
+    width: 200px;
+    text-align: center;
+}
+
+div#sliderTwoContainer {
+    margin-top: 10px;
+}
+
+div#loading {
+    width: 200px;
+    height: 75px;
+    margin: 200px auto;
+    text-align: center;
+}
+
+ul.driverStats li.goodOdds {
+    color: green;
+}
+
+ul.driverStats li.badOdds {
+    color: red;
+}
+
+
+
+@media screen and (min-width: 768px) {
+
+    /* media queries in here */
+    div.driverItem{
+        min-width: 48.5%;
+        float: left;
+        margin-left: 6px;
+    }
+
+}
+
+@media screen and (min-width: 1024px){
+
+    div.driverItem{
+        min-width: 48.5%;
+        float: left;
+        margin-left: 9px;
+    }
+
+}
+
+@media screen and (min-width: 1440px){
+
+    div.driverItem{
+        min-width: 48.5%;
+        float: left;
+        margin-left: 13px;
+    }
+
+}
