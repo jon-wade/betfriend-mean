@@ -6,14 +6,17 @@ var mongooseConfig = require('./db/mongoose-config.js');
 
 var raceData, driverData, manufacturerData;
 
-//clear database
-db.controller.delete({}, mongooseConfig.Data);
-db.controller.delete({}, mongooseConfig.Race);
-db.controller.delete({}, mongooseConfig.Manufacturer);
+var databaseRefresh = function() {
+    //clear database
+    console.log('clearing the db...');
+    db.controller.delete({}, mongooseConfig.Data);
+    db.controller.delete({}, mongooseConfig.Race);
+    db.controller.delete({}, mongooseConfig.Manufacturer);
 
 
 //populate the database
-populate.go().then(function(){
+    console.log('populating the db...');
+    populate.go().then(function(){
         utility.getNextRace().then(function(res, rej){
             raceData = res;
         });
@@ -24,6 +27,15 @@ populate.go().then(function(){
             manufacturerData = res;
         });
     });
+};
+
+
+
+databaseRefresh();
+
+//refresh the database every 5 minutes
+setInterval(databaseRefresh, 300000);
+
 
 
 //web server

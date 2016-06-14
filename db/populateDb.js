@@ -79,7 +79,7 @@ var pointsLookup = function(position){
 var getDriverData = function() {
     return new Promise(function (resolve, reject) {
         //TODO: race number hardcoded into the driver list call
-        console.log('Fetching driver detail data from the API...');
+        //console.log('Fetching driver detail data from the API...');
         ergast.getData('http://ergast.com/api/f1/2016/7/drivers.json')
             .then(function (res, rej) {
                 var complete = 0;
@@ -88,7 +88,7 @@ var getDriverData = function() {
                 }
                 else {
                     var data = res.body.MRData.DriverTable.Drivers;
-                    console.log('Cleaning and saving data...');
+                    //console.log('Cleaning and saving data...');
                     cleanData(data);
                     for (var i=0; i<data.length; i++){
                         saveApiData(data[i]).then(function(res){
@@ -105,7 +105,7 @@ var getDriverData = function() {
 })};
 var getRaceCalendar = function() {
     return new Promise(function(resolve, reject){
-        console.log('Fetching race calendar from API...');
+        //console.log('Fetching race calendar from API...');
         ergast.getData('http://ergast.com/api/f1/2016.json').then(function(res, rej){
             if (rej){
                 console.log('getRaceCalendar cannot populate database due to error in callApi.js: ', rej);
@@ -134,7 +134,7 @@ var getRaceCalendar = function() {
 };
 var getDriverCircuitHistory = function(circuitId, driverId) {
     return new Promise(function(resolve, reject){
-        console.log('Fetching driver circuit history from API...');
+        //console.log('Fetching driver circuit history from API...');
         ergast.getData('http://ergast.com/api/f1/circuits/' + circuitId + '/drivers/' + driverId + '/results.json').then(function(res, rej){
             if(rej){
                 console.log('getDriverCircuitHistory cannot populate database due to error in callApi.js: ', rej);
@@ -151,7 +151,7 @@ var getDriverCircuitHistory = function(circuitId, driverId) {
 };
 var getDriverManufacturer = function() {
     return new Promise(function(resolve, reject){
-        console.log('Fetching driver current manufacturer from API...');
+        //console.log('Fetching driver current manufacturer from API...');
         ergast.getData('http://ergast.com/api/f1/current/last/results.json').then(function(res, rej){
             if(rej){
                 console.log('getDriverManufacture cannot populate database due to error in callApi.js: ', rej);
@@ -176,7 +176,7 @@ var getDriverManufacturer = function() {
 };
 var getManufacturerCircuitHistory = function (circuitId, manufacturerId){
     return new Promise(function(resolve, reject){
-        console.log('Fetching manufacturer circuit history from API...');
+        //console.log('Fetching manufacturer circuit history from API...');
         ergast.getData('http://ergast.com/api/f1/circuits/' + circuitId + '/constructors/' + manufacturerId + '/results.json?limit=1000').then(function(res, rej){
             if(rej){
                 console.log('getManufacturerCircuitHistory cannot populate database due to error in callApi.js: ', rej);
@@ -192,7 +192,7 @@ var getManufacturerCircuitHistory = function (circuitId, manufacturerId){
 };
 var getDriverSeasonPoints = function () {
     return new Promise(function(resolve, reject){
-        console.log('Fetching driver season points from the API...');
+        //console.log('Fetching driver season points from the API...');
         ergast.getData('http://ergast.com/api/f1/current/driverStandings.json').then(function(res, rej){
             if(rej) {
                 console.log('getDriverSeasonPoints cannot populate database due to error in callApi.js: ', rej);
@@ -212,7 +212,7 @@ var getDriverSeasonPoints = function () {
 };
 var getManufacturerSeasonPoints = function () {
     return new Promise(function(resolve, reject){
-        console.log('Fetching manufacturer season points from the API...');
+        //console.log('Fetching manufacturer season points from the API...');
         ergast.getData('http://ergast.com/api/f1/current/constructorStandings.json').then(function(res, rej){
             if(rej) {
                 console.log('getManufacturerSeasonPoints cannot populate database due to error in callApi.js: ', rej);
@@ -238,26 +238,42 @@ var getManufacturerSeasonPoints = function () {
 
 //functions that write to the database
 var saveScraperData = function() {
-    scraper.go().then(function(response){
-        //write results to db, check scraper.js for example code
-        console.log('saveScraperData response', response);
+    return new Promise(function(resolve, reject){
+        scraper.go().then(function(response){
+            //write results to db, check scraper.js for example code
+            //console.log('saveScraperData response', response);
+            var counter = 0;
 
+            //populate database with betfair data
 
-        //populate database with betfair data
-
-        for (var i=0; i<response.drivers.length; i++){
-            if (response.drivers[i] !== 'Carlos Sainz Jr') {
-                db.controller.update({'betfairName': new RegExp(response.drivers[i], "i")}, {'odds': response.odds[i]}, mongooseConfig.Data);
+            for (var i=0; i<response.drivers.length; i++){
+                if (response.drivers[i] !== 'Carlos Sainz Jr') {
+                    db.controller.update({'betfairName': new RegExp(response.drivers[i], "i")}, {'odds': response.odds[i]}, mongooseConfig.Data).then(function(){
+                        counter++;
+                        checkComplete(counter);
+                    });
+                }
+                else {
+                    db.controller.update({'betfairName': "Carlos Sainz"}, {'odds': response.odds[i]}, mongooseConfig.Data).then(function(){
+                        counter++;
+                        checkComplete(counter);
+                    });
+                }
             }
-            else {
-                db.controller.update({'betfairName': "Carlos Sainz"}, {'odds': response.odds[i]}, mongooseConfig.Data);
-            }
-        }
 
-    }, function(error){
-        //output error message to the UI to say that results are not available
-        console.log('saveScraperData error:', error);
+            var checkComplete = function(counter){
+                if (counter === 22) {
+                    //console.log('calling resolve()');
+                    resolve();
+                }
+            };
+
+        }, function(error){
+            //output error message to the UI to say that results are not available
+            console.log('saveScraperData error:', error);
+        });
     });
+
 };
 
 
@@ -272,7 +288,7 @@ var saveApiData = function(item) {
             'betfairName': item.givenName + ' ' + item.familyName
         }, mongooseConfig.Data)
             .then(function(success){
-                console.log('Driver successfully created', success);
+                //console.log('Driver successfully created', success);
                 resolve(true);
             }, function(error){
                 console.log('Driver saving error', error);
@@ -294,134 +310,175 @@ var updateManufacturerScore = function(manufacturerId, position, factor){
     db.controller.update({'manufacturerId': manufacturerId}, {$inc: {'circuitHistoryScore': newScore}}, mongooseConfig.Manufacturer);
 
 };
+
+var scoreDriverData = function(season, currentYear, driverId, position){
+    return new Promise(function(resolve, reject){
+        if (parseInt(season) > currentYear - 10) {
+            switch(parseInt(season)){
+                case currentYear - 1:
+                    updateDriverScore(driverId, position, 0.25).then(function(){resolve()});
+                    break;
+                case currentYear - 2:
+                    updateDriverScore(driverId, position, 0.18).then(function(){resolve()});
+                    break;
+                case currentYear - 3:
+                    updateDriverScore(driverId, position, 0.14).then(function(){resolve()});
+                    break;
+                case currentYear - 4:
+                    updateDriverScore(driverId, position, 0.12).then(function(){resolve()});
+                    break;
+                case currentYear - 5:
+                    updateDriverScore(driverId, position, 0.10).then(function(){resolve()});
+                    break;
+                case currentYear - 6:
+                    updateDriverScore(driverId, position, 0.08).then(function(){resolve()});
+                    break;
+                case currentYear - 7:
+                    updateDriverScore(driverId, position, 0.06).then(function(){resolve()});
+                    break;
+                case currentYear - 8:
+                    updateDriverScore(driverId, position, 0.04).then(function(){resolve()});
+                    break;
+                case currentYear - 9:
+                    updateDriverScore(driverId, position, 0.02).then(function(){resolve()});
+                    break;
+                case currentYear - 10:
+                    updateDriverScore(driverId, position, 0.01).then(function(){resolve()});
+                    break;
+                default:
+                    resolve();
+            }
+        }
+    });
+};
+
+var scoreManufacturerData = function (season, currentYear, manufacturerId, positionOne, positionTwo){
+    return new Promise(function(resolve, reject){
+        if (parseInt(season) > currentYear -10){
+            switch (parseInt(season)){
+                case currentYear-1:
+                    updateManufacturerScore(manufacturerId, positionOne, 0.25).then(function(){resolve()});
+                    updateManufacturerScore(manufacturerId, positionTwo, 0.25).then(function(){resolve()});
+                    break;
+                case currentYear-2:
+                    updateManufacturerScore(manufacturerId, positionOne, 0.18).then(function(){resolve()});
+                    updateManufacturerScore(manufacturerId, positionTwo, 0.18).then(function(){resolve()});
+                    break;
+                case currentYear-3:
+                    updateManufacturerScore(manufacturerId, positionOne, 0.14).then(function(){resolve()});
+                    updateManufacturerScore(manufacturerId, positionTwo, 0.14).then(function(){resolve()});
+                    break;
+                case currentYear-4:
+                    updateManufacturerScore(manufacturerId, positionOne, 0.12).then(function(){resolve()});
+                    updateManufacturerScore(manufacturerId, positionTwo, 0.12).then(function(){resolve()});
+                    break;
+                case currentYear-5:
+                    updateManufacturerScore(manufacturerId, positionOne, 0.10).then(function(){resolve()});
+                    updateManufacturerScore(manufacturerId, positionTwo, 0.10).then(function(){resolve()});
+                    break;
+                case currentYear-6:
+                    updateManufacturerScore(manufacturerId, positionOne, 0.08).then(function(){resolve()});
+                    updateManufacturerScore(manufacturerId, positionTwo, 0.08).then(function(){resolve()});
+                    break;
+                case currentYear-7:
+                    updateManufacturerScore(manufacturerId, positionOne, 0.06).then(function(){resolve()});
+                    updateManufacturerScore(manufacturerId, positionTwo, 0.06).then(function(){resolve()});
+                    break;
+                case currentYear-8:
+                    updateManufacturerScore(manufacturerId, positionOne, 0.04).then(function(){resolve()});
+                    updateManufacturerScore(manufacturerId, positionTwo, 0.04).then(function(){resolve()});
+                    break;
+                case currentYear-9:
+                    updateManufacturerScore(manufacturerId, positionOne, 0.02).then(function(){resolve()});
+                    updateManufacturerScore(manufacturerId, positionTwo, 0.02).then(function(){resolve()});
+                    break;
+                case currentYear-10:
+                    updateManufacturerScore(manufacturerId, positionOne, 0.01).then(function(){resolve()});
+                    updateManufacturerScore(manufacturerId, positionTwo, 0.01).then(function(){resolve()});
+                    break;
+                default:
+                    resolve();
+            }
+        }
+    });
+};
+
+
 var populateDriverCircuitHistoryScore = function() {
 
     return new Promise(function(resolve, reject){
-        db.controller.read({}, 'driverId circuitHistory', mongooseConfig.Data).then(function(res){
+        db.controller.read({}, 'driverId circuitHistory', mongooseConfig.Data)
+            .then(function(res){
             var driverArray = res;
-            var currentYear = new Date().getFullYear();
-            var counter = 0;
+            //var currentYear = new Date().getFullYear();
+            var counterOne = 0;
 
             driverArray.forEach(function(item){
-                counter++;
                 db.controller.update({'driverId': item.driverId}, {'circuitHistoryScore': 0}, mongooseConfig.Data)
                     .then(function(){
-                        var driverId = item.driverId;
-                        console.log('driverId:', driverId);
-                        item.circuitHistory.forEach(function(record){
-                            var season = record.season;
-                            console.log('Season:', season);
-                            var position = parseInt(record.Results[0].position);
-                            console.log('Position:', position);
-                            if (parseInt(season) > currentYear - 10) {
-                                switch(parseInt(season)){
-                                    case currentYear - 1:
-                                        updateDriverScore(driverId, position, 0.25);
-                                        break;
-                                    case currentYear - 2:
-                                        updateDriverScore(driverId, position, 0.18);
-                                        break;
-                                    case currentYear - 3:
-                                        updateDriverScore(driverId, position, 0.14);
-                                        break;
-                                    case currentYear - 4:
-                                        updateDriverScore(driverId, position, 0.12);
-                                        break;
-                                    case currentYear - 5:
-                                        updateDriverScore(driverId, position, 0.10);
-                                        break;
-                                    case currentYear - 6:
-                                        updateDriverScore(driverId, position, 0.08);
-                                        break;
-                                    case currentYear - 7:
-                                        updateDriverScore(driverId, position, 0.06);
-                                        break;
-                                    case currentYear - 8:
-                                        updateDriverScore(driverId, position, 0.04);
-                                        break;
-                                    case currentYear - 9:
-                                        updateDriverScore(driverId, position, 0.02);
-                                        break;
-                                    case currentYear - 10:
-                                        updateDriverScore(driverId, position, 0.01);
-                                        break;
-                                }
-                            }
-                        });
+                        //console.log('populateDriverCircuitHistory counter=', counterOne);
+                        //var driverId = item.driverId;
+                        //var length = item.circuitHistory.length;
+                        //var counterTwo = 0;
+                        //console.log('item.circuitHistory', item.circuitHistory);
+                        counterOne++;
+                        //TODO: needs to be fixed when circuit history data is available
+                        //item.circuitHistory.forEach(function(record){
+                        //    console.log('hello...');
+                        //    var season = record.season;
+                        //    var position = parseInt(record.Results[0].position);
+                        //    scoreData(season, currentYear, driverId, position).then(function(){
+                        //        counterTwo++;
+                        //        console.log('counterTwo', counterTwo);
+                        //        if (counterTwo === length-1){
+                        //            counterOne++;
+                        //        }
+                        //    });
+                        //});
+                        checkComplete(counterOne);
                     });
+                var checkComplete = function(counterOne){
+                    if (counterOne===21){
+                        resolve(true);
+                    }
+                };
             });
-            if (counter===22){
-                resolve(true);
-            }
         });
     });
 };
+
 var populateManufacturerCircuitHistoryScore = function() {
 
     return new Promise(function(resolve, reject){
-        db.controller.read({}, 'manufacturerId', mongooseConfig.Manufacturer).then(function(res) {
+        db.controller.read({}, 'manufacturerId', mongooseConfig.Manufacturer)
+            .then(function(res) {
             var manufacturerArray = res;
             //console.log('res:', res);
-            var currentYear = new Date().getFullYear();
-            var counter = 0;
+            //var currentYear = new Date().getFullYear();
+            var counterOne = 0;
 
-            manufacturerArray.forEach(function(record){
-                counter++;
-                db.controller.update({'manufacturerId': record.manufacturerId}, {'circuitHistoryScore': 0}, mongooseConfig.Manufacturer);
-                db.controller.read({'manufacturerId': record.manufacturerId}, 'circuitHistory manufacturerId', mongooseConfig.Manufacturer).then(function(res){
-                    console.log('manufacturerId:', res[0].manufacturerId);
-
-                    res[0].circuitHistory.forEach(function(item){
-                        if (parseInt(item.season) > currentYear -10){
-                            switch (parseInt(item.season)){
-                                case currentYear-1:
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[0].position), 0.25);
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[1].position), 0.25);
-                                    break;
-                                case currentYear-2:
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[0].position), 0.18);
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[1].position), 0.18);
-                                    break;
-                                case currentYear-3:
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[0].position), 0.14);
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[1].position), 0.14);
-                                    break;
-                                case currentYear-4:
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[0].position), 0.12);
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[1].position), 0.12);
-                                    break;
-                                case currentYear-5:
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[0].position), 0.10);
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[1].position), 0.10);
-                                    break;
-                                case currentYear-6:
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[0].position), 0.08);
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[1].position), 0.08);
-                                    break;
-                                case currentYear-7:
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[0].position), 0.06);
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[1].position), 0.06);
-                                    break;
-                                case currentYear-8:
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[0].position), 0.04);
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[1].position), 0.04);
-                                    break;
-                                case currentYear-9:
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[0].position), 0.02);
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[1].position), 0.02);
-                                    break;
-                                case currentYear-10:
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[0].position), 0.01);
-                                    updateManufacturerScore(record.manufacturerId, parseInt(item.Results[1].position), 0.01);
-                                    break;
-                            }
-                        }
+            manufacturerArray.forEach(function(record) {
+                db.controller.update({'manufacturerId': record.manufacturerId}, {'circuitHistoryScore': 0}, mongooseConfig.Manufacturer)
+                    .then(function() {
+                        counterOne++;
+                        //TODO: To fix when manufacturer circuit history data is available
+                        //db.controller.read({'manufacturerId': record.manufacturerId}, 'circuitHistory manufacturerId', mongooseConfig.Manufacturer
+                        //    .then(function(res){
+                        //        console.log('manufacturerId:', res[0].manufacturerId);
+                        //        res[0].circuitHistory.forEach(function(item){
+                        //
+                        //      });
+                        //  });
+                        checkComplete(counterOne);
                     });
-                });
+
+
+                var checkComplete = function (counterOne) {
+                    if (counterOne === 10) {
+                        resolve(true);
+                    }
+                }
             });
-            if (counter===11){
-                resolve(true);
-            }
         });
     });
 };
@@ -444,7 +501,7 @@ exports.go = function() {
                 getRaceCalendar().then(function() {
                     utility.getNextRace().then(function(res) {
                         circuitId=res.circuitId;
-                        console.log('circuitId=', circuitId);
+                        //console.log('circuitId=', circuitId);
                         checkComplete();
                     })
                 });
@@ -468,7 +525,7 @@ exports.go = function() {
 
                 var checkComplete = function(){
                     if (driverArray != undefined && circuitId != undefined && manufacturerArray != undefined){
-                        console.log('resolving checkComplete');
+                        //console.log('resolving checkComplete');
                         resolve (
                             {
                                 'driverArray': driverArray,
@@ -493,6 +550,7 @@ exports.go = function() {
 
                 var driverComplete = false;
                 var manufacturerComplete = false;
+                var scraperComplete = false;
                 var driverArrayLength = res.driverArray.length;
                 var manufacturerArrayLength = res.manufacturerArray.length;
                 var counterDriver = 0;
@@ -500,10 +558,11 @@ exports.go = function() {
 
                 res.driverArray.forEach(function(item){
                     getDriverCircuitHistory(res.circuitId, item.driverId).then(function(res){
-                        console.log('Saved circuit history data for...', item.driverId);
+                        //console.log('Saved circuit history data for...', item.driverId);
                         counterDriver ++;
                         if (counterDriver === driverArrayLength){
                             driverComplete = true;
+                            console.log('driverComplete:', driverComplete);
                             checkComplete();
                         }
                     });
@@ -511,10 +570,11 @@ exports.go = function() {
 
                 res.manufacturerArray.forEach(function(item){
                     getManufacturerCircuitHistory(res.circuitId, item).then(function(res){
-                        console.log('Saved circuit history data for...', item);
+                        //console.log('Saved circuit history data for...', item);
                         counterManufacturer ++;
                         if (counterManufacturer === manufacturerArrayLength) {
                             manufacturerComplete = true;
+                            console.log('manufacturerComplete:', manufacturerComplete);
                             getManufacturerSeasonPoints().then(function(){
                                 checkComplete();
                             });
@@ -522,12 +582,15 @@ exports.go = function() {
                     });
                 });
 
-                //TODO: here we add in the code to get the odds using the scraper code
 
-                saveScraperData();
+                saveScraperData().then(function(){
+                    scraperComplete = true;
+                    console.log('scraperComplete:', scraperComplete);
+                    checkComplete();
+                });
 
                 var checkComplete = function(){
-                    if (driverComplete === true && manufacturerComplete === true) {
+                    if (driverComplete === true && manufacturerComplete === true && scraperComplete === true) {
                         resolve();
                     }
                 };
@@ -568,9 +631,7 @@ exports.go = function() {
         stepOne().then(function(res){
             stepTwo(res).then(function(res){
                 stepThree().then(function(res){
-                    console.log('StepThree res=', res);
-                    console.log("database population complete");
-                    setTimeout(function(){resolve();}, 2000);
+                    setTimeout(function(){resolve(); console.log("database population complete"); }, 2000);
                 });
             });
         });

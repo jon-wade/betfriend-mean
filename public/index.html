@@ -5,12 +5,21 @@
         <meta charset="utf-8">
         <base href="/">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link id="fonts" href='https://fonts.googleapis.com/css?family=Exo+2:400,900italic,400italic,900' rel='stylesheet' type='text/css'>
+        <link id="basic-style" rel="stylesheet" href="style.css">
         <script src="bower_components/angular/angular.js"></script>
         <script src="bower_components/angular-route/angular-route.js"></script>
         <script src="client.js"></script>
     </head>
     <body>
-        <h1>This is being served from index.html</h1>
+        <nav>
+            <ul>
+                <li ng-class="{hide: bckHide}" ng-click="previous()">&lt;&lt; PREV</li>
+                <li><h1>BetFriend: Formula 1</h1></li>
+                <li ng-class="{hide: fwdHide}">NEXT &gt;&gt;</li>
+            </ul>
+        </nav>
         <div ng-view></div>
     </body>
+
 </html>

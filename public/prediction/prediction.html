@@ -11,26 +11,13 @@
     </form>
 </div>
 <div id="predictGrid">
-    <!--<div id="loading" ng-if="loading">-->
-        <!--<h1>Fetching data...</h1>-->
-        <!--<img src="../img/ajax-loader.gif" width="75" height="75">-->
-    <!--</div>-->
-    <p>{{total}}</p>
-    <div ng-repeat="driver in driverData | orderBy: '-totalScore'">
-        <ul>
+    <div ng-repeat="driver in driverData | orderBy: '-totalScore'" class="driverItem {{driver.manufacturerId}}">
+        <img class="driverShot" ng-src="../img/{{driver.manufacturerId}}/{{driver.driverId}}.jpg">
+        <ul class="driverStats">
             <li>P{{$index+1}}: {{driver.givenName}} {{driver.familyName}}</li>
             <li>{{driver.manufacturerName}}</li>
-            <li>Predicted Odds: {{total/driver.totalScore | number:0}} / 1</li>
+            <li ng-class="{goodOdds: (driver.odds - (total/driver.totalScore))>0, badOdds: (driver.odds - (total/driver.totalScore))<0}">Predicted Odds: {{total/driver.totalScore | number:0}} / 1</li>
             <li>Betfair Odds: {{driver.odds| number:0}} / 1</li>
         </ul>
     </div>
-
-    <!--<div ng-repeat="driver in driverArr | orderBy: '-totalScore'" class="driverItem {{driver.manufacturer}}" ng-class="{notOne: $index>0}">-->
-        <!--<img class="driverShot" ng-src="../img/{{driver.manufacturer}}/{{driver.driverId}}.jpg">-->
-        <!--<ul class="driverStats">-->
-            <!--<li ng-class="{goodOdds: (driver.betfairOdds - (raceTotal/driver.totalScore))>1, badOdds: (driver.betfairOdds - (raceTotal/driver.totalScore))<-1}">Predicted Odds: {{(raceTotal/ driver.totalScore) | number:0}} / 1</li>-->
-            <!--<li ng-class="{goodOdds: (driver.betfairOdds - (raceTotal/driver.totalScore))>1, badOdds: (driver.betfairOdds - (raceTotal/driver.totalScore))<-1}">Betfair Odds: {{driver.betfairOdds | number:0}} / 1</li>-->
-        <!--</ul>-->
-
-    <!--</div>-->
 </div>
