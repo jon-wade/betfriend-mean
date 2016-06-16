@@ -72,10 +72,10 @@ div#title-block h1 {
 }
 
 div.container button {
-    margin-top: 175px;
+    margin-top: 125px;
     background-color: #00A000;
     color: white;
-    font-size: 0.5em;
+    font-size: 0.75em;
     width: 100px;
     height: 50px;
     border: 1px solid white;
