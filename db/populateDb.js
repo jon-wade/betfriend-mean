@@ -122,12 +122,18 @@ var getRaceCalendar = function() {
                         'circuitId': item.Circuit.circuitId,
                         'circuitName': item.Circuit.circuitName,
                         'raceDate': item.date + 'T' + item.time
-                    }, mongooseConfig.Race);
-                    counter++;
-                    if(counter===21){
+                    }, mongooseConfig.Race).then(function(){
+                        counter++;
+                        console.log('counter', counter);
+                        checkComplete(counter);
+                    });
+                });
+                var checkComplete = function(counter){
+                    if (counter===21){
+                        console.log('resolving...');
                         resolve();
                     }
-                });
+                };
             }
         });
     });
@@ -226,11 +232,14 @@ var getManufacturerSeasonPoints = function () {
                     var seasonPoints = parseInt(item.points);
                     db.controller.update({'manufacturerId': manufacturerId}, {'seasonPoints': seasonPoints}, mongooseConfig.Manufacturer).then(function(){
                         counter++;
+                        checkComplete(counter);
                     });
                 });
-                if (counter == 11) {
-                    setTimeout(function(){console.log('waiting 2 seconds...'); resolve();}, 2000);
-                }
+                var checkComplete = function(counter){
+                    if (counter === 11) {
+                        resolve();
+                    }
+                };
             }
         });
     });
@@ -497,11 +506,14 @@ exports.go = function() {
             return new Promise(function(resolve, reject) {
                 var driverArray, circuitId;
                 var manufacturerArray=[];
+                var grc = false;
+                var gdd = false;
 
                 getRaceCalendar().then(function() {
                     utility.getNextRace().then(function(res) {
                         circuitId=res.circuitId;
-                        //console.log('circuitId=', circuitId);
+                        console.log('circuitId=', circuitId);
+                        grc = true;
                         checkComplete();
                     })
                 });
@@ -512,10 +524,13 @@ exports.go = function() {
                     });
                     utility.getDbData('driverId', mongooseConfig.Data).then(function(res) {
                         driverArray=res;
+                        console.log('driverArray', driverArray);
                         getDriverManufacturer().then(function(){
                             utility.getDbData('manufacturerId', mongooseConfig.Data).then(function(res) {
                                 deDupe(res).then(function(res){
                                     manufacturerArray = res;
+                                    gdd = true;
+                                    console.log('manufacturerArray', manufacturerArray);
                                     checkComplete();
                                 });
                             });
@@ -524,8 +539,8 @@ exports.go = function() {
                 });
 
                 var checkComplete = function(){
-                    if (driverArray != undefined && circuitId != undefined && manufacturerArray != undefined){
-                        //console.log('resolving checkComplete');
+                    if (gdd===true && grc===true){
+                        console.log('resolving stepOne');
                         resolve (
                             {
                                 'driverArray': driverArray,
@@ -573,9 +588,9 @@ exports.go = function() {
                         //console.log('Saved circuit history data for...', item);
                         counterManufacturer ++;
                         if (counterManufacturer === manufacturerArrayLength) {
-                            manufacturerComplete = true;
-                            console.log('manufacturerComplete:', manufacturerComplete);
                             getManufacturerSeasonPoints().then(function(){
+                                manufacturerComplete = true;
+                                console.log('manufacturerComplete:', manufacturerComplete);
                                 checkComplete();
                             });
                         }
@@ -591,6 +606,7 @@ exports.go = function() {
 
                 var checkComplete = function(){
                     if (driverComplete === true && manufacturerComplete === true && scraperComplete === true) {
+                        console.log('resolving stepTwo...');
                         resolve();
                     }
                 };
