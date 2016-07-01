@@ -4,11 +4,10 @@ var getOdds = require('./getOdds.js');
 var db = require('../db/database.js');
 var mongooseConfig = require('../db/mongoose-config.js');
 
-var scrapeBetfair = function() {
+var scrapeBetfair = function(currentRoundName) {
   return new Promise(function(resolve, reject){
       var url = "";
-      //TODO: grand prix race name hardcoded
-      getUrl.retrieveURL('European')
+      getUrl.retrieveURL(currentRoundName)
           .then(function(response){
               //console.log('getUrl.retrieveURL response =', response);
               return response;
@@ -29,13 +28,12 @@ var scrapeBetfair = function() {
   });
 };
 
-exports.go = function() {
+exports.go = function(currentRoundName) {
     return new Promise(function (resolve, reject) {
-        scrapeBetfair().then(function (res) {
+        scrapeBetfair(currentRoundName).then(function (res) {
             //console.log('scrapeBetfair Response:', res);
             resolve(res);
         }, function(rej){
-            //TODO: deal with non-availability of scraped data here
             reject(rej);
         });
     });

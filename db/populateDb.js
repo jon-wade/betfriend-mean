@@ -74,13 +74,38 @@ var pointsLookup = function(position){
         return table[position];
     }
 };
+var raceNameLookup = function(round){
+    var table = {
+        '1': 'Australian',
+        '2': 'Bahrain',
+        '3': 'Chinese',
+        '4': 'Russian',
+        '5': 'Spanish',
+        '6': 'Monaco',
+        '7': 'Canadian',
+        '8': 'European',
+        '9': 'Austrian',
+        '10': 'British',
+        '11': 'Hungarian',
+        '12': 'German',
+        '13': 'Belgian',
+        '14': 'Italian',
+        '15': 'Singapore',
+        '16': 'Malaysian',
+        '17': 'Japanese',
+        '18': 'United States',
+        '19': 'Mexican',
+        '20': 'Brazilian',
+        '21': 'Abu Dhabi'
+    };
+    return table[round];
+};
 
 //functions that collect and save data from the API
-var getDriverData = function() {
+var getDriverData = function(currentRound) {
     return new Promise(function (resolve, reject) {
-        //TODO: race number hardcoded into the driver list call
         //console.log('Fetching driver detail data from the API...');
-        ergast.getData('http://ergast.com/api/f1/2016/7/drivers.json')
+        ergast.getData('http://ergast.com/api/f1/2016/' + currentRound + '/drivers.json')
             .then(function (res, rej) {
                 var complete = 0;
                 if (rej) {
@@ -246,9 +271,13 @@ var getManufacturerSeasonPoints = function () {
 };
 
 //functions that write to the database
-var saveScraperData = function() {
+var saveScraperData = function(currentRound) {
     return new Promise(function(resolve, reject){
-        scraper.go().then(function(response){
+
+        //current round name
+        var currentRoundName = raceNameLookup(currentRound);
+
+        scraper.go(currentRoundName).then(function(response){
             //write results to db, check scraper.js for example code
             //console.log('saveScraperData response', response);
             var counter = 0;
@@ -419,31 +448,29 @@ var populateDriverCircuitHistoryScore = function() {
         db.controller.read({}, 'driverId circuitHistory', mongooseConfig.Data)
             .then(function(res){
             var driverArray = res;
-            //var currentYear = new Date().getFullYear();
+            var currentYear = new Date().getFullYear();
             var counterOne = 0;
 
             driverArray.forEach(function(item){
                 db.controller.update({'driverId': item.driverId}, {'circuitHistoryScore': 0}, mongooseConfig.Data)
                     .then(function(){
-                        //console.log('populateDriverCircuitHistory counter=', counterOne);
-                        //var driverId = item.driverId;
-                        //var length = item.circuitHistory.length;
-                        //var counterTwo = 0;
+                        console.log('populateDriverCircuitHistory counter=', counterOne);
+                        var driverId = item.driverId;
+                        var length = item.circuitHistory.length;
+                        var counterTwo = 0;
                         //console.log('item.circuitHistory', item.circuitHistory);
                         counterOne++;
-                        //TODO: needs to be fixed when circuit history data is available
-                        //item.circuitHistory.forEach(function(record){
-                        //    console.log('hello...');
-                        //    var season = record.season;
-                        //    var position = parseInt(record.Results[0].position);
-                        //    scoreData(season, currentYear, driverId, position).then(function(){
-                        //        counterTwo++;
-                        //        console.log('counterTwo', counterTwo);
-                        //        if (counterTwo === length-1){
-                        //            counterOne++;
-                        //        }
-                        //    });
-                        //});
+                        item.circuitHistory.forEach(function(record){
+                            var season = record.season;
+                            var position = parseInt(record.Results[0].position);
+                            scoreDriverData(season, currentYear, driverId, position).then(function(){
+                                counterTwo++;
+                                console.log('counterTwo', counterTwo);
+                                if (counterTwo === length-1){
+                                    counterOne++;
+                                }
+                            });
+                        });
                         checkComplete(counterOne);
                     });
                 var checkComplete = function(counterOne){
@@ -459,28 +486,35 @@ var populateDriverCircuitHistoryScore = function() {
 var populateManufacturerCircuitHistoryScore = function() {
 
     return new Promise(function(resolve, reject){
-        db.controller.read({}, 'manufacturerId', mongooseConfig.Manufacturer)
+        db.controller.read({}, 'manufacturerId circuitHistory', mongooseConfig.Manufacturer)
             .then(function(res) {
             var manufacturerArray = res;
-            //console.log('res:', res);
-            //var currentYear = new Date().getFullYear();
+            var currentYear = new Date().getFullYear();
             var counterOne = 0;
 
-            manufacturerArray.forEach(function(record) {
-                db.controller.update({'manufacturerId': record.manufacturerId}, {'circuitHistoryScore': 0}, mongooseConfig.Manufacturer)
+            manufacturerArray.forEach(function(item) {
+                db.controller.update({'manufacturerId': item.manufacturerId}, {'circuitHistoryScore': 0}, mongooseConfig.Manufacturer)
                     .then(function() {
+                        console.log('populateManufacturerCircuitHistory counter=', counterOne);
+                        var manufacturerId = item.manufacturerId;
+                        var length = item.circuitHistory.length;
+                        var counterTwo = 0;
                         counterOne++;
-                        //TODO: To fix when manufacturer circuit history data is available
-                        //db.controller.read({'manufacturerId': record.manufacturerId}, 'circuitHistory manufacturerId', mongooseConfig.Manufacturer
-                        //    .then(function(res){
-                        //        console.log('manufacturerId:', res[0].manufacturerId);
-                        //        res[0].circuitHistory.forEach(function(item){
-                        //
-                        //      });
-                        //  });
+                        item.circuitHistory.forEach(function(record){
+                            var season = record.season;
+                            var positionOne = parseInt(record.Results[0].position);
+                            var positionTwo = parseInt(record.Results[1].position);
+                            scoreManufacturerData(season, currentYear, manufacturerId, positionOne, positionTwo).then(function(){
+                                counterTwo++;
+                                console.log('counterTwo', counterTwo);
+                                if(counterTwo === length-1){
+                                    counterOne++;
+                                }
+                            });
+
+                        });
                         checkComplete(counterOne);
                     });
-
 
                 var checkComplete = function (counterOne) {
                     if (counterOne === 10) {
@@ -498,13 +532,14 @@ exports.go = function() {
     return new Promise(function(resolve, reject){
 
         /*stepOne
-         * in parallel get current race calendar and next race in the championship
-         * in parallel get driver first name, id etc and then add in season points and the manufacturer the driver drives for
+         * get current race calendar and next race in the championship
+         * then get driver first name, id etc and then add in season points and the manufacturer the driver drives for
          * once both are completed start stepTwo by returning an object with the driverArray, manufacturerArray and circuitId
         */
+
         var stepOne = function(){
             return new Promise(function(resolve, reject) {
-                var driverArray, circuitId;
+                var driverArray, circuitId, currentRound;
                 var manufacturerArray=[];
                 var grc = false;
                 var gdd = false;
@@ -513,30 +548,35 @@ exports.go = function() {
                     utility.getNextRace().then(function(res) {
                         circuitId=res.circuitId;
                         console.log('circuitId=', circuitId);
+                        currentRound = parseInt(res.round);
+                        console.log('currentRound=', currentRound);
                         grc = true;
                         checkComplete();
-                    })
+                        return currentRound;
+                    }).then(function(currentRound) {
+                        getDriverData(currentRound-1).then(function() {
+                            //get driver season points in parallel here
+                            getDriverSeasonPoints().then(function(res){
+                            });
+                            utility.getDbData('driverId', mongooseConfig.Data).then(function(res) {
+                                driverArray=res;
+                                console.log('driverArray', driverArray);
+                                getDriverManufacturer().then(function(){
+                                    utility.getDbData('manufacturerId', mongooseConfig.Data).then(function(res) {
+                                        deDupe(res).then(function(res){
+                                            manufacturerArray = res;
+                                            gdd = true;
+                                            console.log('manufacturerArray', manufacturerArray);
+                                            checkComplete();
+                                        });
+                                    });
+                                });
+                            })
+                        });
+                    });
                 });
 
-                getDriverData().then(function() {
-                    //get driver season points in parallel here
-                    getDriverSeasonPoints().then(function(res){
-                    });
-                    utility.getDbData('driverId', mongooseConfig.Data).then(function(res) {
-                        driverArray=res;
-                        console.log('driverArray', driverArray);
-                        getDriverManufacturer().then(function(){
-                            utility.getDbData('manufacturerId', mongooseConfig.Data).then(function(res) {
-                                deDupe(res).then(function(res){
-                                    manufacturerArray = res;
-                                    gdd = true;
-                                    console.log('manufacturerArray', manufacturerArray);
-                                    checkComplete();
-                                });
-                            });
-                        });
-                    })
-                });
+
 
                 var checkComplete = function(){
                     if (gdd===true && grc===true){
@@ -545,7 +585,8 @@ exports.go = function() {
                             {
                                 'driverArray': driverArray,
                                 'circuitId': circuitId,
-                                'manufacturerArray': manufacturerArray
+                                'manufacturerArray': manufacturerArray,
+                                'currentRound': currentRound
                             }
                         );
                     }
@@ -568,6 +609,7 @@ exports.go = function() {
                 var scraperComplete = false;
                 var driverArrayLength = res.driverArray.length;
                 var manufacturerArrayLength = res.manufacturerArray.length;
+                var currentRound = res.currentRound;
                 var counterDriver = 0;
                 var counterManufacturer = 0;
 
@@ -598,9 +640,13 @@ exports.go = function() {
                 });
 
 
-                saveScraperData().then(function(){
+                saveScraperData(currentRound).then(function(){
                     scraperComplete = true;
                     console.log('scraperComplete:', scraperComplete);
+                    checkComplete();
+                }, function(rej) {
+                    scraperComplete = true;
+                    console.log('scrapeFailed...continuing...');
                     checkComplete();
                 });
 
