@@ -2,10 +2,12 @@
     <form id="predictForm">
         <div id="sliderOneContainer">
             <label id="sliderOne" for="dc">Driver - Constructor</label>
+            <p class="predictionInstructions">Alter bias between driver and constructor historic results</p>
             <input type="range" name="dc" id="dc" min="0" max="100" ng-model="dc">
         </div>
         <div id="sliderTwoContainer">
             <label id="sliderTwo" for="st">Season - Track</label>
+            <p class="predictionInstructions">Alter bias between current season data and historic track data</p>
             <input type="range" name="st" id="st" min="0" max="100" ng-model="st">
         </div>
     </form>

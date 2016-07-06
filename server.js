@@ -33,18 +33,16 @@ var databaseRefresh = function() {
 
 databaseRefresh();
 
-//refresh the database every 5 minutes
-setInterval(databaseRefresh, 300000);
-
-
+//refresh the database every hour
+setInterval(databaseRefresh, 3600000);
 
 //web server
 var app = express();
 app.use(express.static(__dirname + '/public'));
 
-app.get('/', function(req, res) {
-    res.sendFile('/public/index.html');
-});
+//app.get('/', function(req, res) {
+//    res.sendFile('/public/index.html');
+//});
 
 app.get('/raceData', function(req, res){
     res.send(raceData);
@@ -56,6 +54,10 @@ app.get('/driverData', function(req, res){
 
 app.get('/manufacturerData', function(req, res){
     res.send(manufacturerData);
+});
+
+app.get('*', function(req, res) {
+    res.sendFile('index.html', {root: __dirname + '/public/'});
 });
 
 app.listen(8080);

@@ -11,6 +11,27 @@ body {
     font-family: 'Exo 2', Helvetica, sans-serif;
 }
 
+h2#title {
+    font-weight: normal;
+    margin: 0;
+    font-size: 1.2em;
+}
+
+p.instructions {
+    font-size: 0.75em;
+    width: 44%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+p.predictionInstructions {
+    font-size: 0.75em;
+    width: 90%;
+    margin: 0 auto;
+    text-align: center;
+    color: grey;
+}
+
 nav ul {
     display: flex;
     justify-content: space-between;
@@ -27,6 +48,7 @@ nav ul li {
     list-style: none;
     font-size: 0.75em;
     padding: 0 10px;
+    cursor: pointer;
 }
 
 nav ul li.hide {
@@ -57,8 +79,14 @@ div.container {
 }
 
 div.container p {
-    margin: 0;
     padding-top: 20px;
+}
+
+div.container p.inverse {
+    background-color: rgba(0,0,0,0.5);
+    padding: 5px;
+    width: 20%;
+    margin: 20px auto;
 }
 
 div#title-block {
@@ -72,7 +100,7 @@ div#title-block h1 {
 }
 
 div.container button {
-    margin-top: 125px;
+    margin-top: 25px;
     background-color: #00A000;
     color: white;
     font-size: 0.75em;
@@ -80,6 +108,7 @@ div.container button {
     height: 50px;
     border: 1px solid white;
     border-radius: 5px;
+    cursor: pointer;
 }
 
 table#countdown {
@@ -104,7 +133,7 @@ table#countdown td.black {
 
 div#predictGrid {
     background-color: black;
-    margin-top: 190px;
+    margin-top: 200px;
     margin-left: auto;
     margin-right: auto;
     width: 100%;
@@ -163,7 +192,7 @@ div.driverItem {
 
 form#predictForm {
     margin: 0 auto 20px auto;
-    width: 200px;
+    width: 400px;
 }
 
 img.driverShot {
@@ -295,7 +324,7 @@ input#dc, input#st {
 }
 
 div#sliderOneContainer, div#sliderTwoContainer {
-    width: 200px;
+    width: 400px;
     text-align: center;
 }
 
@@ -320,6 +349,64 @@ ul.driverStats li.badOdds {
 
 
 
+@media screen and (max-width: 425px) {
+
+    p.instructions {
+        font-size: 0.6em;
+        width: 85%;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    div.container p {
+        padding-top: 5px;
+    }
+
+    div.container p.inverse {
+        background-color: rgba(0,0,0,0.5);
+        padding: 5px;
+        width: 56%;
+        margin: 20px auto;
+    }
+
+    form#predictForm {
+        width: 350px;
+    }
+
+    div#sliderOneContainer, div#sliderTwoContainer {
+        width: 350px;
+    }
+
+}
+
+@media screen and (min-width: 376px) and (max-width: 425px) {
+    div.container p.inverse {
+        width: 50%;
+    }
+}
+
+@media screen and (min-width:426px) and (max-width: 768px) {
+
+    p.instructions {
+        font-size: 0.7em;
+        width: 70%;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    div.container p {
+        padding-top: 5px;
+    }
+
+    div.container p.inverse {
+        background-color: rgba(0,0,0,0.5);
+        padding: 5px;
+        width: 28%;
+        margin: 20px auto;
+    }
+
+}
+
 @media screen and (min-width: 768px) {
 
     /* media queries in here */
@@ -328,6 +415,8 @@ ul.driverStats li.badOdds {
         float: left;
         margin-left: 6px;
     }
+
+
 
 }
 

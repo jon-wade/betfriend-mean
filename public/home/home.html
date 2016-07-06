@@ -1,8 +1,9 @@
 <div class="container image">
     <div id="title-block">
         <h1>{{raceName}}</h1>
-        <p>Round: {{round}}</p>
-        <p>{{circuitName}}</p>
+        <p class="instructions">Get race predictions for forthcoming Grand Prix by analysing year's worth of driver and constructor performance data.</p>
+        <p class="instructions">Compare predicted finishing positions and odds with those offered by online bookmaker, Betfair.</p>
+        <p class="instructions">Change the prediction algorithm based on your own view of the importance of track, season, driver or constructor performance.</p>
         <table id="countdown" bordercollapse>
             <tr id="header">
                 <td class="black">D</td>
@@ -17,6 +18,8 @@
                 <td class="black">{{seconds}}</td>
             </tr>
         </table>
+        <p class="inverse">Round: {{round}}</p>
+        <p class="inverse">{{circuitName}}</p>
         <button type="button" ng-click="getPredictionPage()">Get Prediction</button>
     </div>
 </div>

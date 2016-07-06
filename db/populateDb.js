@@ -285,13 +285,15 @@ var saveScraperData = function(currentRound) {
             //populate database with betfair data
 
             for (var i=0; i<response.drivers.length; i++){
-                if (response.drivers[i] !== 'Carlos Sainz Jr') {
+                if (response.drivers[i] !== 'Carlos Sainz Jnr') {
+                    //console.log('in the non-Carlos Sainz code block...');
                     db.controller.update({'betfairName': new RegExp(response.drivers[i], "i")}, {'odds': response.odds[i]}, mongooseConfig.Data).then(function(){
                         counter++;
                         checkComplete(counter);
                     });
                 }
                 else {
+                    //console.log('in theCarlos Sainz code block...')
                     db.controller.update({'betfairName': "Carlos Sainz"}, {'odds': response.odds[i]}, mongooseConfig.Data).then(function(){
                         counter++;
                         checkComplete(counter);
