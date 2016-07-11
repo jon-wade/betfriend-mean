@@ -1,16 +1,14 @@
 # betfriend-mean
 
-Thinkful Unit 2 Portfolio Exercise - MEAN stack app to predict results of next Grand Prix race based on historic driver and constructor performance, and compare to online bookmaker odds.
+Thinkful Unit 2 Portfolio Exercise - MEAN stack app to predict results of next Grand Prix race.
 
 ## Overview
 
 BetFriend is an app which is designed to analyse historical Formula 1 performance data for drivers and constructors, work out their likelihood of success at the next race in the calendar and compare to online bookmakers odds for the same outcome to identify any potential pricing discrepancies.
 
-The target audience for the app are Formula 1 fans, of which there are over 600 million watching each race on television around the world (source: https://betting.betfair.com/betting/how-to-win-money-betting-on-formula-one.html).
-
 ##Use Case
 
-Why is this app useful? There are over 600 million people watching Formula 1 on television around the world during each race and they're all fascinated with who is going to win the race - and a lot of those bet on the outcome of the race to add a bit of extra interest to the race. In theory, this app *could* make better predictions of the odds of a driver winning the next Formula 1 race than the bookies, and in so doing could highlight potential profit opportunities in the betting market for that race. In other words, the app provides betting fans an edge when they're placing their bets.
+Why is this app useful? There are over 600 million people watching Formula 1 on television around the world during each race and they're all fascinated with who is going to win the race. A lot of those fans bet on the outcome to add a bit of extra interest to the race. In theory, this app *could* make better predictions of the odds of a driver winning the next race than the bookies, and in so doing could highlight potential profit opportunities in the betting market. In other words, the app provides betting fans an edge when they're placing their bets on the race.
 
 ##UX
 
