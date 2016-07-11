@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html ng-app="client">
     <head>
-        <title>Test Page</title>
+        <title>Betfriend | Jon Wade</title>
         <meta charset="utf-8">
         <base href="/">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +12,15 @@
         <script src="client.js"></script>
     </head>
     <body>
+    <!-- allows detection of IE versions that don't support conditional comments and serve a different style sheet -->
+    <script>
+        var b = document.documentElement;
+        b.setAttribute('data-useragent',  navigator.userAgent);
+        b.setAttribute('data-platform', navigator.platform );
+        b.className += ((!!('ontouchstart' in window) || !!('onmsgesturechange' in window))?' touch':'');
+    </script>
+    </body>
+    </html>
         <nav>
             <ul>
                 <li ng-class="{hide: bckHide}" ng-click="previous()">&lt;&lt; PREV</li>

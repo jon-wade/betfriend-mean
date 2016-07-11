@@ -65,7 +65,8 @@ nav ul li h1 {
 div#form-container {
     position: fixed;
     top: 54px;
-    background-color: black;
+    background-color: #122533;
+    padding-top: 8px;
     width: 100%;
     z-index: 100;
 }
@@ -85,7 +86,7 @@ div.container p {
 div.container p.inverse {
     background-color: rgba(0,0,0,0.5);
     padding: 5px;
-    width: 20%;
+    width: 15%;
     margin: 20px auto;
 }
 
@@ -133,7 +134,7 @@ table#countdown td.black {
 
 div#predictGrid {
     background-color: black;
-    margin-top: 200px;
+    margin-top: 226px;
     margin-left: auto;
     margin-right: auto;
     width: 100%;
@@ -347,9 +348,16 @@ ul.driverStats li.badOdds {
     color: red;
 }
 
+html[data-useragent*='Edge'] input#dc, html[data-useragent*='Edge'] input#st {
+    margin-top: 7px;
+}
 
 
 @media screen and (max-width: 425px) {
+
+    div#title-block {
+        top: 70px;
+    }
 
     p.instructions {
         font-size: 0.6em;
@@ -371,6 +379,10 @@ ul.driverStats li.badOdds {
 
     form#predictForm {
         width: 350px;
+    }
+
+    div#predictGrid {
+        margin-top: 256px;
     }
 
     div#sliderOneContainer, div#sliderTwoContainer {
@@ -399,12 +411,15 @@ ul.driverStats li.badOdds {
     }
 
     div.container p.inverse {
-        background-color: rgba(0,0,0,0.5);
-        padding: 5px;
         width: 28%;
-        margin: 20px auto;
     }
 
+}
+
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+    div.container p.inverse {
+        width: 21%;
+    }
 }
 
 @media screen and (min-width: 768px) {
@@ -415,7 +430,6 @@ ul.driverStats li.badOdds {
         float: left;
         margin-left: 6px;
     }
-
 
 
 }

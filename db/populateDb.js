@@ -458,22 +458,15 @@ var populateDriverCircuitHistoryScore = function() {
                     .then(function(){
                         console.log('populateDriverCircuitHistory counter=', counterOne);
                         var driverId = item.driverId;
-                        var length = item.circuitHistory.length;
-                        var counterTwo = 0;
-                        //console.log('item.circuitHistory', item.circuitHistory);
                         counterOne++;
+                        checkComplete(counterOne);
                         item.circuitHistory.forEach(function(record){
                             var season = record.season;
                             var position = parseInt(record.Results[0].position);
-                            scoreDriverData(season, currentYear, driverId, position).then(function(){
-                                counterTwo++;
-                                console.log('counterTwo', counterTwo);
-                                if (counterTwo === length-1){
-                                    counterOne++;
-                                }
-                            });
+                            console.log('season=', season);
+                            console.log('position=', position);
+                            scoreDriverData(season, currentYear, driverId, position);
                         });
-                        checkComplete(counterOne);
                     });
                 var checkComplete = function(counterOne){
                     if (counterOne===21){
@@ -499,23 +492,14 @@ var populateManufacturerCircuitHistoryScore = function() {
                     .then(function() {
                         console.log('populateManufacturerCircuitHistory counter=', counterOne);
                         var manufacturerId = item.manufacturerId;
-                        var length = item.circuitHistory.length;
-                        var counterTwo = 0;
                         counterOne++;
+                        checkComplete(counterOne);
                         item.circuitHistory.forEach(function(record){
                             var season = record.season;
                             var positionOne = parseInt(record.Results[0].position);
                             var positionTwo = parseInt(record.Results[1].position);
-                            scoreManufacturerData(season, currentYear, manufacturerId, positionOne, positionTwo).then(function(){
-                                counterTwo++;
-                                console.log('counterTwo', counterTwo);
-                                if(counterTwo === length-1){
-                                    counterOne++;
-                                }
-                            });
-
+                            scoreManufacturerData(season, currentYear, manufacturerId, positionOne, positionTwo);
                         });
-                        checkComplete(counterOne);
                     });
 
                 var checkComplete = function (counterOne) {
@@ -653,7 +637,7 @@ exports.go = function() {
                 });
 
                 var checkComplete = function(){
-                    if (driverComplete === true && manufacturerComplete === true && scraperComplete === true) {
+                    if (driverComplete === true && manufacturerComplete === true) {
                         console.log('resolving stepTwo...');
                         resolve();
                     }
