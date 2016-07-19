@@ -352,6 +352,10 @@ html[data-useragent*='Edge'] input#dc, html[data-useragent*='Edge'] input#st {
     margin-top: 7px;
 }
 
+html[data-useragent*='Gecko'] input#dc, html[data-useragent*='Gecko'] input#st {
+    margin-top: 7px;
+}
+
 
 @media screen and (max-width: 425px) {
 
