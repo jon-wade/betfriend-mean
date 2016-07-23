@@ -2,7 +2,7 @@
 
 Thinkful Unit 2 Portfolio Exercise - MEAN stack app to predict results of next Grand Prix race.
 
-![Screenshots](http://jonwade.digital/hosted-projects/github-images/betfriend-mobile-screenshots.png)
+![Screenshots](http://jonwade.digital/github-images/betfriend-mobile-screenshots.png)
 
 ## Overview
 
@@ -16,7 +16,7 @@ Why is this app useful? There are over 600 million people watching Formula 1 on 
 
 The initial mobile wireframes can be seen below:
 
-![Initial Wireframes](http://jonwade.digital/hosted-projects/github-images/betfriend-wireframe-image.jpg)
+![Initial Wireframes](http://jonwade.digital/github-images/betfriend-wireframe-image.jpg)
 
 The app has been designed with a focus on strong, impactful Formula 1 photography used as background images and from a mobile-first perspective. The home screen displays the next race in the calendar, with a decreasing countdown to the beginning of that race. By clicking on the ‘Get Prediction’ button, the user is taken through to the Prediction template. That template shows a grid line-up with the predicted positions of the drivers based on an algorithm that analyses historic driver and manufacturer performance data. The sliders at the top of the page allow the user to change the assumptions in the algorithm. The top slider allows the balance between current season performance and historic track performance (over past 10 years) to be altered in the algorithm. The second slider allows the balance between driver performance and constructor performance to be altered. As the sliders are altered, the grid order will dynamically change to represent the new race result prediction. For each driver, the predicted odds of winning the race are then compared to the odds of winning published online by BetFair.
 
