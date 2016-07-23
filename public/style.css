@@ -32,9 +32,7 @@ p.predictionInstructions {
     color: grey;
 }
 
-nav ul {
-    display: flex;
-    justify-content: space-between;
+nav {
     margin: 0;
     background-color: black;
     padding: 20px 0;
@@ -44,23 +42,12 @@ nav ul {
     z-index: 100;
 }
 
-nav ul li {
-    list-style: none;
-    font-size: 0.75em;
-    padding: 0 10px;
-    cursor: pointer;
-}
-
-nav ul li.hide {
-    color: black;
-}
-
-nav ul li h1 {
-    font-size: 1em;
-    margin: 0;
+nav h2#title {
+    width: 100%;
     text-align: center;
-    padding: 0 10px;
+    font-size: 1em;
 }
+
 
 div#form-container {
     position: fixed;
@@ -352,10 +339,14 @@ html[data-useragent*='Edge'] input#dc, html[data-useragent*='Edge'] input#st {
     margin-top: 7px;
 }
 
-html[data-useragent*='Gecko'] input#dc, html[data-useragent*='Gecko'] input#st {
-    margin-top: 7px;
-}
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+    /* IE10+ specific styles go here */
+    div#form-container form#predictForm div#sliderOneContainer input#dc, div#form-container form#predictForm div#sliderTwoContainer input#st {
+        margin-top: 0;
+        margin-bottom: -30px;
+    }
 
+}
 
 @media screen and (max-width: 425px) {
 
